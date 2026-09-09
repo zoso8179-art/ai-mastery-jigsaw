@@ -160,8 +160,8 @@
         <span>ARC Advisory · AI Mastery Jigsaw</span>
         <button class="signout" id="signOutBtn">Sign out</button>
       </div>
-      <h1>Nothing on here you can't back up.</h1>
-      <p class="sub">A client can click through any of this and check it themselves. That's what makes it worth putting on LinkedIn in the first place.</p>
+      <h1>AI Mastery Jigsaw</h1>
+      <p class="sub">A tracker for the AI courses, certifications and comparisons Nick is working through.</p>
       <div class="platform-strip" id="platformStrip"></div>
     </div>
     <div class="hero-stat">
@@ -173,10 +173,7 @@
 
   <div class="connect-bar">
     <div class="conn-item"><span class="conn-dot" id="dotSupabase"></span>Sync</div>
-    <div class="conn-item"><span class="conn-dot" id="dotGithub"></span>GitHub checks</div>
-    <div class="conn-item"><span class="conn-dot" id="dotNetlify"></span>Netlify checks</div>
-    <div class="conn-item"><span class="conn-dot" id="dotProxy"></span>Link checks</div>
-    <button class="conn-btn" id="connectToggleBtn">Manage connections</button>
+    <button class="conn-btn" id="connectToggleBtn">Manage sync</button>
   </div>
   <div class="connect-panel" id="connectPanel">
     <div class="conn-block">
@@ -190,22 +187,7 @@
       <button class="btn-primary" id="sendMagicBtn" type="button">Save & send sign-in link</button>
       <div class="verify-status" id="syncMsg" style="margin-top:8px;"></div>
     </div>
-    <div class="conn-block">
-      <h3>GitHub, verifies your build pieces have real commits</h3>
-      <p>Create a fine-grained token at <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>, scope it to the repos you'll use, grant read-only Contents access.</p>
-      <div class="conn-grid"><div class="conn-field"><label>TOKEN</label><input id="cfgGhToken" type="password"></div></div>
-    </div>
-    <div class="conn-block">
-      <h3>Netlify, verifies a site is actually live</h3>
-      <p>Get a personal access token from <a href="https://app.netlify.com/user/applications" target="_blank" rel="noopener">app.netlify.com/user/applications</a>.</p>
-      <div class="conn-grid"><div class="conn-field"><label>TOKEN</label><input id="cfgNetlifyToken" type="password"></div></div>
-    </div>
-    <div class="conn-block">
-      <h3>Link verification proxy, checks any other link is genuinely live</h3>
-      <p>A tiny Supabase Edge Function does this (browsers can't reliably check third-party sites directly). Ask me for the function code and deploy steps when you're ready; paste its URL here once it's live.</p>
-      <div class="conn-grid"><div class="conn-field"><label>FUNCTION URL</label><input id="cfgProxyUrl" placeholder="https://xxxx.functions.supabase.co/check-url"></div></div>
-    </div>
-    <button class="btn-primary" id="saveConnBtn">Save connections</button>
+    <button class="btn-primary" id="saveConnBtn">Save</button>
   </div>
 
   <nav class="spine" id="spine"></nav>
@@ -218,6 +200,7 @@
 </div>
 
 <script>
+(function(){
 /* ===================== SUPABASE, CONFIGURED FROM THE UI, NOT THE CODE ===================== */
 let supabase = null;
 let session = null;
@@ -255,21 +238,21 @@ const LEVELS = [
   {id:1, name:"Foundations & AI Fluency", time:"Weeks 1–3 · ~56 hrs",
    goal:"Build a correct mental model of what these models can and can't do, across Claude, ChatGPT, Copilot and Gemini, plus where Grok genuinely differs.",
    pass:"<b>Claude Certified Associate – Foundations</b> verified. First LinkedIn explainer published."},
-  {id:2, name:"Context Engineering & Prompt Systems", time:"Weeks 3–6 · ~60 hrs",
-   goal:"Move past clever prompts into managing the whole context window, and ship your first reusable Claude Skill.",
-   pass:"One ARC workflow automated as a working Claude Skill, live in a GitHub repo with real commits."},
-  {id:3, name:"RAG & Tool Use", time:"Weeks 6–11 · ~90 hrs",
-   goal:"Ground a model in ARC's own material and give it callable tools instead of just conversation.",
-   pass:"A working RAG assistant, verified live in its repo, answers client-style questions with citations."},
-  {id:4, name:"MCP, Agents & Orchestration", time:"Weeks 11–19 · ~154 hrs",
-   goal:"The core build phase, connecting agents to real systems across Copilot Studio, Gemini Enterprise and Claude's own stack.",
-   pass:"<b>Claude Certified Developer – Foundations</b> verified. Three agents shipped and evidenced."},
-  {id:5, name:"Evaluation, Deployment & Governance", time:"Weeks 19–25 · ~124 hrs",
-   goal:"Prove an agent works with numbers, and speak the governance and trust and safety language IT and security buyers actually use, across Microsoft and Google's frameworks as well as your own.",
-   pass:"<b>Google Cloud Generative AI Leader</b> verified. One shipped agent gets a documented, evidenced evaluation harness."},
-  {id:6, name:"Capstone, Thought Leader", time:"Weeks 25–36 · ~150 hrs", capstone:true,
-   goal:"Convert the build work into visible, evidenced authority in the sales and GTM consulting market.",
-   pass:"A flagship agent with a client-grade metric, a named ARC framework, sustained LinkedIn output, a verified portfolio page."}
+  {id:2, name:"Context Engineering & Prompt Systems", time:"Weeks 3–6 · ~30 hrs",
+   goal:"Move past clever prompts into understanding how Claude manages context, skills and multi-step work.",
+   pass:"Comfortable explaining what a Claude Skill is and when Cowork beats a plain chat, unscripted, to a client."},
+  {id:3, name:"RAG & Tool Use", time:"Weeks 6–9 · ~50 hrs",
+   goal:"Understand how a model gets grounded in real documents and given tools to act.",
+   pass:"Can explain retrieval and tool use clearly enough that a client understands what they're actually buying."},
+  {id:4, name:"MCP, Agents & Orchestration", time:"Weeks 9–15 · ~110 hrs",
+   goal:"Understand how agents reach real systems and coordinate multi-step work, across Copilot Studio, Gemini Enterprise and Claude's own stack.",
+   pass:"<b>Claude Certified Developer – Foundations</b> verified. Confident explaining MCP and agent orchestration to a technical buyer."},
+  {id:5, name:"Evaluation, Deployment & Governance", time:"Weeks 15–20 · ~104 hrs",
+   goal:"Speak the governance and trust and safety language IT and security buyers actually use, across Microsoft, Google and your own thinking.",
+   pass:"<b>Google Cloud Generative AI Leader</b> verified. Comfortable in a governance conversation with an IT or security lead."},
+  {id:6, name:"Depth, Optional", time:"Ongoing", capstone:true,
+   goal:"Only worth doing if a client is asking for architectural depth beyond what the earlier levels give you.",
+   pass:"Optional: Claude Certified Architect verified."}
 ];
 
 /* ===================== PIECES ===================== */
@@ -277,7 +260,7 @@ const LEVELS = [
    'github' (repo checked via GitHub API) | 'netlify' (site checked via Netlify API) | 'link' (reachability only, via proxy) */
 const PIECES = [
   {id:"l0-baseline", level:0, platform:"arc", kind:"Build", cost:"Free", hours:5, title:"Baseline self-assessment",
-   why:"Real starting point, not a guess, so every later level is measured against where you actually are.",
+   why:"A real starting point, so every later level is measured against where you actually are.",
    link:null, verify:{kind:"baseline"}},
   {id:"l0-setup", level:0, platform:"arc", kind:"Build", cost:"Free", hours:10, title:"Environment setup, Claude, GitHub, Supabase, Netlify",
    why:"Every later piece assumes these exist. Do it once, properly.", link:"https://claude.ai", verify:{kind:"self"}},
@@ -295,20 +278,16 @@ const PIECES = [
   {id:"l2-context", level:2, platform:"anthropic", kind:"Content", cost:"Free", hours:3, title:"'Effective context engineering for AI agents'", why:"The primary source on the discipline that replaced prompt engineering.", link:"https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents", verify:{kind:"self"}},
   {id:"l2-skills", level:2, platform:"anthropic", kind:"Course", cost:"Free", hours:3, title:"Introduction to Agent Skills", why:"The smallest reusable unit every later agent depends on.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
   {id:"l2-cowork", level:2, platform:"anthropic", kind:"Course", cost:"Free", hours:4, title:"Introduction to Claude Cowork", why:"Where a non-developer builds real automation without code first.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
-  {id:"l2-build", level:2, platform:"arc", kind:"Build", cost:"Free", hours:16, title:"Ship your first ARC Skill", why:"Automate one real ARC workflow end to end, in a public repo.", link:null, verify:{kind:"github"}},
 
   {id:"l3-api", level:3, platform:"anthropic", kind:"Course", cost:"Free", hours:6, title:"Building with the Claude API", why:"Retrieval, grounding and tool use, the mechanics behind every agent from here.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
   {id:"l3-nvidia-genai", level:3, platform:"nvidia", kind:"Course", cost:"Free", hours:2, title:"NVIDIA: Generative AI Explained", why:"No-code primer from the hardware layer up.", link:"https://resources.nvidia.com/en-us-generative-ai-nurture-courses/dli", verify:{kind:"self"}},
   {id:"l3-nvidia-rag", level:3, platform:"nvidia", kind:"Course", cost:"Free", hours:8, title:"NVIDIA: Agentic RAG project path", why:"A guided free project showing retrieval and agents working together.", link:"https://developer.nvidia.com/topics/ai/how-to-build-agentic-ai-rag", verify:{kind:"self"}},
-  {id:"l3-build", level:3, platform:"arc", kind:"Build", cost:"Free", hours:20, title:"Deploy a RAG assistant on ARC's own methodology", why:"Case Study #1: grounded in ARC's own docs, answers with citations, live in a repo.", link:null, verify:{kind:"github"}},
 
   {id:"l4-mcp-intro", level:4, platform:"anthropic", kind:"Course", cost:"Free", hours:4, title:"Introduction to Model Context Protocol", why:"How an agent reaches real systems. Now used well beyond Anthropic.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
   {id:"l4-mcp-adv", level:4, platform:"anthropic", kind:"Course", cost:"Free", hours:4, title:"MCP: Advanced Topics", why:"Tool explosion and coordination, the two things that break agents at scale.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
   {id:"l4-subagents", level:4, platform:"anthropic", kind:"Course", cost:"Free", hours:3, title:"Introduction to Subagents", why:"Delegating parts of a task, the pattern behind every serious multi-step system.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
   {id:"l4-dl-mcp", level:4, platform:"anthropic", kind:"Course", cost:"Free", hours:2, title:"DeepLearning.AI: MCP, Build Rich-Context AI Apps", why:"Short, hands-on, taught with Anthropic.", link:"https://learn.deeplearning.ai/courses/mcp-build-rich-context-ai-apps-with-anthropic/information", verify:{kind:"vendor", set:"deeplearning"}},
   {id:"l4-dl-agentsdk", level:4, platform:"anthropic", kind:"Course", cost:"Free", hours:3, title:"DeepLearning.AI: Agent Skills with Anthropic", why:"Your ceiling as a non-developer: enough of the Agent SDK to say 'I build agents', credibly.", link:"https://www.deeplearning.ai/courses/agent-skills-with-anthropic", verify:{kind:"vendor", set:"deeplearning"}},
-  {id:"l4-relevance", level:4, platform:"arc", kind:"Build", cost:"Free tier", hours:20, title:"Build a GTM agent in Relevance AI", why:"No-code, sales-native, used in production by real GTM teams.", link:"https://relevanceai.com", verify:{kind:"link"}},
-  {id:"l4-n8n", level:4, platform:"arc", kind:"Build", cost:"Free (self-host)", hours:24, title:"Build an orchestration agent in n8n", why:"Deeper control, useful the day a client needs self-hosted workflows.", link:"https://n8n.io", verify:{kind:"link"}},
   {id:"l4-copilot-academy", level:4, platform:"microsoft", kind:"Course", cost:"Free (badges)", hours:10, title:"Copilot Studio Agent Academy", why:"Free, ranked training to production agents in the no-code builder sat inside Microsoft 365.", link:"https://microsoft.github.io/agent-academy/", verify:{kind:"vendor", set:"microsoft"}},
   {id:"l4-copilot-studio-ms", level:4, platform:"microsoft", kind:"Course", cost:"Free", hours:6, title:"Create agents in Microsoft Copilot Studio", why:"The official Microsoft Learn path: topics, entities, knowledge sources, publishing.", link:"https://learn.microsoft.com/en-us/training/paths/create-extend-custom-copilots-microsoft-copilot-studio/", verify:{kind:"vendor", set:"microsoft"}},
   {id:"l4-gemini-enterprise", level:4, platform:"google", kind:"Course", cost:"Free", hours:8, title:"Gemini Enterprise Agent Ready (GEAR): multi-agent systems", why:"Google's free hands-on labs on the platform formerly called Vertex AI.", link:"https://cloud.google.com/blog/topics/training-certifications/free-gemini-enterrprise-training", verify:{kind:"self"}},
@@ -317,14 +296,9 @@ const PIECES = [
   {id:"l5-eval", level:5, platform:"nvidia", kind:"Course", cost:"Free", hours:6, title:"NVIDIA: How to Evaluate AI Agents", why:"Proving an agent works with numbers, not a demo.", link:"https://developer.nvidia.com/topics/ai/how-to-evaluate-ai-agents", verify:{kind:"self"}},
   {id:"l5-gcloud", level:5, platform:"google", kind:"Course", cost:"Free", hours:14, title:"Google Cloud: Generative AI Leader learning path", why:"Strategy and governance framing, the language risk-aware buyers use.", link:"https://www.skills.google/paths/1951", verify:{kind:"vendor", set:"google"}},
   {id:"l5-ms-governance", level:5, platform:"microsoft", kind:"Course", cost:"Free", hours:4, title:"Prepare your organization for Microsoft 365 Copilot", why:"The exact security and compliance conversation an enterprise IT lead will have before Copilot touches client data.", link:"https://learn.microsoft.com/en-us/training/paths/prepare-your-organization-microsoft-365-copilot/", verify:{kind:"vendor", set:"microsoft"}},
-  {id:"l5-guardrails", level:5, platform:"arc", kind:"Build", cost:"Free", hours:14, title:"Add an evaluation harness and guardrails to a shipped agent", why:"Turns a demo into a defensible, documented system, evidenced in the repo.", link:null, verify:{kind:"github"}},
   {id:"l5-exam", level:5, platform:"google", kind:"Exam", cost:"Paid, check current fee", hours:2, title:"Google Cloud Generative AI Leader exam", why:"A recognised, non-coding governance credential.", link:"https://www.skills.google/paths/1951", verify:{kind:"vendor", set:"google"}},
   {id:"l5-ms-cert", level:5, platform:"microsoft", kind:"Exam", cost:"Paid, check current fee", hours:2, title:"Microsoft 365 Certified: Copilot and Agent Administration Fundamentals", why:"The named Microsoft credential for Copilot and agent governance.", link:"https://learn.microsoft.com/en-us/credentials/certifications/copilot-and-agent-administration-fundamentals/", verify:{kind:"vendor", set:"microsoft"}},
 
-  {id:"l6-flagship", level:6, platform:"arc", kind:"Build", cost:"Free–low cost", hours:60, title:"Ship a flagship agent with a client-grade metric", why:"One agent, one real client number. The case study that sells ARC.", link:null, verify:{kind:"link"}},
-  {id:"l6-framework", level:6, platform:"arc", kind:"Content", cost:"Free", hours:20, title:"Publish a named ARC AI framework", why:"Original methodology, not the badges behind it, is what earns 'thought leader'.", link:null, verify:{kind:"link"}},
-  {id:"l6-linkedin", level:6, platform:"arc", kind:"Content", cost:"Free", hours:40, title:"12 weeks of consistent, specific LinkedIn output", why:"Cadence can't be auto-verified. Paste one representative post as your evidence link, honestly labelled.", link:null, verify:{kind:"link"}},
-  {id:"l6-portfolio", level:6, platform:"arc", kind:"Build", cost:"Free", hours:14, title:"Publish a 4–5 case study portfolio page", why:"The asset a technical buyer checks before a first call, live on your own site.", link:null, verify:{kind:"netlify"}},
   {id:"l6-architect", level:6, platform:"anthropic", kind:"Exam", cost:"$125", hours:3, title:"Optional: Claude Certified Architect – Foundations", why:"Only if a client base is asking for deep architectural credibility.", link:"https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification", verify:{kind:"vendor", set:"anthropic"}},
 ];
 
@@ -339,7 +313,7 @@ const BASELINE_QUESTIONS = [
 const STORAGE_KEY = "arc-jigsaw-progress-v3";
 const CONN_KEY = "arc-jigsaw-connections-v1";
 let state = {pieces:{}, baseline:{}, updatedAt:0};
-let conn = {gh:"", netlify:"", proxy:"", supaUrl:"", supaKey:""};
+let conn = {supaUrl:"", supaKey:""};
 let activePlatforms = new Set(Object.keys(PLATFORMS));
 
 function loadLocal(){ try{ const r=JSON.parse(localStorage.getItem(STORAGE_KEY)); if(r&&r.pieces) state=r; }catch(e){} }
@@ -411,11 +385,7 @@ function pushRemote(){
   }, 1200);
 }
 function setDot(id, ok){ const el=document.getElementById(id); if(el) el.className = "conn-dot" + (ok?" ok":" err"); }
-function updateConnDots(){
-  setDot("dotGithub", !!conn.gh);
-  setDot("dotNetlify", !!conn.netlify);
-  setDot("dotProxy", !!conn.proxy);
-}
+function updateConnDots(){ setDot("dotSupabase", !!(conn.supaUrl && conn.supaKey)); }
 
 function boot(){
   loadLocal();
@@ -432,75 +402,21 @@ function domainAllowed(url, allowList){
   const h = domainOf(url); if(!h) return false;
   return allowList.some(d => h === d || h.endsWith("."+d));
 }
-function parseGithubRepo(url){
-  const m = (url||"").match(/github\.com\/([^\/]+)\/([^\/\s#?]+)/i);
-  return m ? {owner:m[1], repo:m[2].replace(/\.git$/,"")} : null;
-}
 
-async function verifyVendor(piece, url, statusEl){
+/* No proxy, no token, nothing to set up: this just checks the link is a real URL
+   pointing at the actual issuer's own site. It can't confirm the page is still live
+   right now, only that it's shaped like a genuine credential link, not a random URL. */
+function verifyVendor(piece, url){
+  if(!/^https?:\/\//.test(url)) return {ok:false, msg:"Needs a full https:// link"};
   const allow = VENDOR_DOMAINS[piece.verify.set] || [];
   if(!domainAllowed(url, allow)){
-    return {ok:false, msg:"Link isn't on a recognised issuer domain ("+allow.join(", ")+")"};
+    return {ok:false, msg:"Not on a recognised issuer domain ("+allow.join(", ")+")"};
   }
-  if(!conn.proxy){ return {ok:false, msg:"Set up the link-check proxy first (Manage connections)"}; }
-  try{
-    const res = await fetch(conn.proxy, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({url})});
-    const data = await res.json();
-    if(data.ok) return {ok:true, msg:"Verified live on "+domainOf(url)};
-    return {ok:false, msg:"Link didn't resolve (status "+(data.status||"?")+")"};
-  }catch(e){ return {ok:false, msg:"Couldn't reach the proxy, check the function URL"}; }
+  return {ok:true, msg:"Confirmed, that's a real "+domainOf(url)+" credential link"};
 }
 
-async function verifyLink(url){
-  if(!/^https?:\/\//.test(url)) return {ok:false, msg:"Needs a full https:// link"};
-  if(!conn.proxy){ return {ok:false, msg:"Set up the link-check proxy first (Manage connections)"}; }
-  try{
-    const res = await fetch(conn.proxy, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({url})});
-    const data = await res.json();
-    return data.ok ? {ok:true, msg:"Link is live"} : {ok:false, msg:"Link didn't resolve (status "+(data.status||"?")+")"};
-  }catch(e){ return {ok:false, msg:"Couldn't reach the proxy"}; }
-}
-
-async function verifyGithub(url){
-  const parsed = parseGithubRepo(url);
-  if(!parsed) return {ok:false, msg:"Paste a real github.com/owner/repo URL"};
-  if(!conn.gh) return {ok:false, msg:"Add a GitHub token first (Manage connections)"};
-  try{
-    const headers = {"Authorization":"Bearer "+conn.gh, "Accept":"application/vnd.github+json"};
-    const repoRes = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`, {headers});
-    if(!repoRes.ok) return {ok:false, msg:"Repo not found or not accessible (status "+repoRes.status+")"};
-    const commitsRes = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}/commits?per_page=1`, {headers});
-    if(!commitsRes.ok) return {ok:false, msg:"Couldn't read commits (status "+commitsRes.status+")"};
-    const commits = await commitsRes.json();
-    if(!Array.isArray(commits) || commits.length===0) return {ok:false, msg:"Repo exists but has no commits yet"};
-    const date = commits[0].commit && commits[0].commit.author ? commits[0].commit.author.date : null;
-    return {ok:true, msg:"Verified, real commits, last one "+(date?new Date(date).toLocaleDateString():"recorded")};
-  }catch(e){ return {ok:false, msg:"GitHub check failed"}; }
-}
-
-async function verifyNetlify(url){
-  if(!/^https?:\/\//.test(url)) return {ok:false, msg:"Needs a full https:// link"};
-  if(!conn.netlify) return {ok:false, msg:"Add a Netlify token first (Manage connections)"};
-  try{
-    const res = await fetch("https://api.netlify.com/api/v1/sites", {headers:{"Authorization":"Bearer "+conn.netlify}});
-    if(!res.ok) return {ok:false, msg:"Couldn't read your Netlify sites (status "+res.status+")"};
-    const sites = await res.json();
-    const target = domainOf(url);
-    const match = sites.find(s => (s.ssl_url && domainOf(s.ssl_url)===target) || (s.custom_domain && s.custom_domain===target) || (s.url && domainOf(s.url)===target));
-    if(!match) return {ok:false, msg:"No live Netlify site matches that URL"};
-    if(match.state !== "current" && match.state !== "ready") return {ok:false, msg:"Site found but not currently published (state: "+match.state+")"};
-    return {ok:true, msg:"Verified live, last published "+(match.published_deploy ? new Date(match.published_deploy.published_at).toLocaleDateString() : "recently")};
-  }catch(e){ return {ok:false, msg:"Netlify check failed"}; }
-}
-
-async function runVerify(piece, url, btn, statusEl){
-  btn.disabled = true; statusEl.className = "verify-status wait"; statusEl.textContent = "Checking…";
-  let result;
-  if(piece.verify.kind==="vendor") result = await verifyVendor(piece, url, statusEl);
-  else if(piece.verify.kind==="github") result = await verifyGithub(url);
-  else if(piece.verify.kind==="netlify") result = await verifyNetlify(url);
-  else result = await verifyLink(url);
-  btn.disabled = false;
+function runVerify(piece, url, btn, statusEl){
+  const result = verifyVendor(piece, url);
   if(result.ok){
     statusEl.className = "verify-status ok"; statusEl.textContent = result.msg;
     setPieceState(piece.id, {status:"done", evidence:url, verifiedAt:Date.now(), note:result.msg});
@@ -627,10 +543,7 @@ function renderPieceCard(p){
     verifyHtml = `<div class="verify-block"><span class="verify-type">SELF-REPORTED, no issuing authority exists for this</span>
       <button class="self-toggle ${st.status==='done'?'done':''}" data-id="${p.id}">${st.status==='done'?'Marked done':'Mark done'}</button></div>`;
   } else {
-    const label = p.verify.kind==="vendor" ? "VENDOR-VERIFIED, paste the credential link the issuer gave you"
-      : p.verify.kind==="github" ? "GITHUB-VERIFIED, paste the repo URL"
-      : p.verify.kind==="netlify" ? "NETLIFY-VERIFIED, paste the live site URL"
-      : "LINK-VERIFIED, paste the live artifact URL";
+    const label = "VENDOR-CHECKED, paste the credential link the issuer gave you";
     verifyHtml = `<div class="verify-block"><span class="verify-type">${label}</span>
       <div class="verify-row">
         <input type="text" placeholder="https://…" value="${st.evidence||''}" data-verify-input="${p.id}">
@@ -709,19 +622,16 @@ wire("connectToggleBtn","click", ()=>{
   panel.classList.toggle("open");
   document.getElementById("cfgSupaUrl").value = conn.supaUrl || "";
   document.getElementById("cfgSupaKey").value = conn.supaKey || "";
-  document.getElementById("cfgGhToken").value = conn.gh || "";
-  document.getElementById("cfgNetlifyToken").value = conn.netlify || "";
-  document.getElementById("cfgProxyUrl").value = conn.proxy || "";
 });
 wire("saveConnBtn","click", ()=>{
-  conn.gh = document.getElementById("cfgGhToken").value.trim();
-  conn.netlify = document.getElementById("cfgNetlifyToken").value.trim();
-  conn.proxy = document.getElementById("cfgProxyUrl").value.trim();
+  conn.supaUrl = document.getElementById("cfgSupaUrl").value.trim();
+  conn.supaKey = document.getElementById("cfgSupaKey").value.trim();
   saveConn();
   document.getElementById("connectPanel").classList.remove("open");
 });
 
 try{ boot(); }catch(e){ console.error("Tracker failed to start:", e); alert("Something broke on load. Open this page's browser console (right click, Inspect, Console tab) and tell Claude what the red text says."); }
+})();
 </script>
 </body>
 </html>
