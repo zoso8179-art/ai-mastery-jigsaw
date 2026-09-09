@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Mastery Jigsaw — ARC Advisory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --paper:#EFEDE6; --paper-raised:#F8F6F0;
+    --ink:#1B2A3D; --ink-soft:#4C5A6B;
+    --blue:#2E5F8A; --blue-dim:#DCE6EE;
+    --amber:#B8622A; --amber-dim:#F1E1D3;
+    --green:#3F7A5C; --green-dim:#DCEAE2;
+    --purple:#6A4C93; --purple-dim:#E7E0F0;
+    --grey:#5B6472; --grey-dim:#E4E2DA;
+    --red:#B33A3A; --red-dim:#F1DCDC;
+    --line:#CBC4B5; --line-soft:#DEDACC;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0; background:var(--paper);
+    background-image:linear-gradient(var(--line-soft) 1px, transparent 1px),linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size:28px 28px; color:var(--ink); font-family:'Inter',sans-serif; font-size:15px; line-height:1.55;}
+  h1,h2,h3{font-family:'Fraunces',serif;}
+  .num{font-family:'IBM Plex Mono',monospace;}
+  a{color:var(--blue);} button{font-family:inherit;}
+
+  .gate{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;}
+  .gate-box{max-width:420px; width:100%; background:var(--paper-raised); border:1px solid var(--line); padding:32px;}
+  .gate-box h1{font-size:26px; margin:0 0 8px;}
+  .gate-box p{color:var(--ink-soft); font-size:13.5px; margin:0 0 20px;}
+  .gate-box input{width:100%; border:1px solid var(--line); background:var(--paper); padding:10px 12px; font-size:14px; margin-bottom:10px; font-family:inherit;}
+  .gate-box button{width:100%; background:var(--ink); color:#fff; border:none; padding:11px; font-size:14px; cursor:pointer;}
+  .gate-box .msg{font-size:13px; margin-top:12px; color:var(--ink-soft);}
+  .gate-box .skip{font-size:12px; text-align:center; margin-top:14px;}
+
+  .shell{display:grid; grid-template-columns:260px 1fr; max-width:1280px; margin:0 auto; min-height:100vh;}
+  @media(max-width:880px){ .shell{grid-template-columns:1fr;} .spine{position:static; order:2; border-right:none; border-top:1px solid var(--line);} }
+
+  .hero{grid-column:1/-1; padding:44px 40px 26px; border-bottom:1px solid var(--line); display:grid; grid-template-columns:1.15fr 0.85fr; gap:40px; align-items:end;}
+  @media(max-width:880px){ .hero{grid-template-columns:1fr; padding:28px 20px;} }
+  .eyebrow-line{display:flex; align-items:center; justify-content:space-between; gap:10px; color:var(--ink-soft); font-size:13px; margin-bottom:16px;}
+  .hero h1{font-size:38px; font-weight:600; letter-spacing:-0.01em; margin:0 0 12px; line-height:1.08; max-width:14ch;}
+  .hero p.sub{max-width:52ch; color:var(--ink-soft); font-size:14.5px; margin:0 0 14px;}
+  .signout{font-size:12px; color:var(--ink-soft); background:none; border:1px solid var(--line); padding:4px 10px; cursor:pointer;}
+  .platform-strip{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;}
+  .platform-chip{font-size:11.5px; font-family:'IBM Plex Mono',monospace; padding:3px 9px; border:1px solid var(--line); color:var(--ink-soft); cursor:pointer; background:var(--paper-raised);}
+  .platform-chip.active{color:#fff;}
+
+  .hero-stat{background:var(--paper-raised); border:1px solid var(--line); padding:18px 20px;}
+  .hero-stat .big{font-family:'IBM Plex Mono',monospace; font-size:44px; font-weight:600; color:var(--blue); line-height:1;}
+  .hero-stat .label{color:var(--ink-soft); font-size:12px; margin-top:6px;}
+  .mosaic{display:grid; grid-template-columns:repeat(auto-fill, minmax(20px,1fr)); gap:4px; margin-top:14px;}
+  .mosaic svg{width:100%; height:auto; display:block;}
+  .mp-done{fill:var(--green); stroke:var(--green);} .mp-progress{fill:var(--amber-dim); stroke:var(--amber);} .mp-none{fill:transparent; stroke:var(--line);}
+
+  .connect-bar{grid-column:1/-1; padding:12px 40px; border-bottom:1px solid var(--line); background:var(--paper-raised); font-size:12.5px; display:flex; gap:16px; flex-wrap:wrap; align-items:center;}
+  @media(max-width:880px){.connect-bar{padding:10px 20px;}}
+  .conn-item{display:flex; align-items:center; gap:6px;}
+  .conn-dot{width:7px; height:7px; border-radius:50%; background:var(--grey);}
+  .conn-dot.ok{background:var(--green);} .conn-dot.err{background:var(--red);}
+  .conn-btn{border:none; background:none; color:var(--blue); text-decoration:underline; cursor:pointer; font-size:12.5px; padding:0;}
+
+  .connect-panel{grid-column:1/-1; padding:20px 40px 26px; border-bottom:1px solid var(--line); background:var(--paper-raised); display:none;}
+  .connect-panel.open{display:block;}
+  @media(max-width:880px){.connect-panel{padding:18px 20px 22px;}}
+  .connect-panel h3{margin:0 0 4px; font-size:15px;}
+  .connect-panel p{margin:0 0 10px; font-size:12.5px; color:var(--ink-soft); max-width:70ch;}
+  .conn-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; max-width:620px;}
+  @media(max-width:640px){.conn-grid{grid-template-columns:1fr;}}
+  .conn-field label{font-size:11px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; display:block; margin-bottom:3px;}
+  .conn-field input{width:100%; border:1px solid var(--line); background:var(--paper); padding:7px 9px; font-size:13px; font-family:inherit;}
+  .conn-block{margin-bottom:18px; padding-bottom:16px; border-bottom:1px dashed var(--line);}
+  .conn-block:last-child{border-bottom:none;}
+  .btn-primary{background:var(--ink); color:#fff; border:1px solid var(--ink); padding:7px 14px; font-size:12.5px; cursor:pointer; margin-top:10px;}
+
+  .spine{border-right:1px solid var(--line); padding:20px 0; position:sticky; top:0; align-self:start; max-height:100vh; overflow-y:auto;}
+  .spine-item{display:block; padding:9px 22px; border-left:3px solid transparent; cursor:pointer; text-decoration:none; color:var(--ink);}
+  .spine-item:hover{background:var(--paper-raised);}
+  .spine-item .lvl-name{font-weight:600; font-size:12.5px; display:block;}
+  .spine-item .lvl-meta{font-size:10.5px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+  .spine-bar{height:3px; background:var(--line-soft); margin-top:5px; overflow:hidden;}
+  .spine-bar-fill{height:100%; background:var(--green);}
+  .spine-jump{display:block; padding:9px 22px; font-size:12.5px; font-weight:600; text-decoration:none; color:var(--ink); border-top:1px solid var(--line); margin-top:4px;}
+  .spine-controls{padding:14px 22px 0; border-top:1px solid var(--line); margin-top:4px;}
+  .toggle-row{display:flex; align-items:center; justify-content:space-between; font-size:12.5px; margin-bottom:8px;}
+  .switch{width:32px; height:18px; border:1px solid var(--line); background:var(--paper-raised); border-radius:20px; position:relative; cursor:pointer;}
+  .switch .knob{width:12px; height:12px; background:var(--ink-soft); border-radius:50%; position:absolute; top:2px; left:2px; transition:left .15s;}
+  .switch.on{background:var(--blue-dim); border-color:var(--blue);} .switch.on .knob{left:16px; background:var(--blue);}
+  .reset-link{font-size:11.5px; color:var(--ink-soft); background:none; border:none; text-decoration:underline; cursor:pointer; padding:0;}
+
+  main{padding:8px 40px 80px;} @media(max-width:880px){main{padding:8px 20px 60px;}}
+
+  .badges-section{padding-top:32px;}
+  .badges-head{border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:16px;}
+  .badges-head h2{font-size:19px; margin:0;} .badges-head p{font-size:12px; color:var(--ink-soft); margin:4px 0 0;}
+  .badges-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr)); gap:10px;}
+  .badge-card{border:1px solid var(--line); background:var(--paper-raised); padding:12px; text-align:center;}
+  .badge-card.locked{opacity:.45;}
+  .badge-card canvas{width:100%; max-width:140px; display:block; margin:0 auto 8px;}
+  .badge-card .bname{font-size:12px; font-weight:600;}
+  .badge-card .bstatus{font-size:10.5px; color:var(--ink-soft); margin:2px 0 8px;}
+  .badge-actions{display:flex; gap:6px; justify-content:center; flex-wrap:wrap;}
+  .badge-actions button{font-size:10px; border:1px solid var(--line); background:var(--paper); padding:4px 7px; cursor:pointer;}
+
+  .level-block{padding-top:34px; scroll-margin-top:14px;}
+  .level-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:12px; margin-bottom:16px;}
+  .level-head .lvl-tag{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--blue); border:1px solid var(--blue); padding:2px 7px;}
+  .level-head h2{font-size:20px; font-weight:600; margin:0;}
+  .level-head .lvl-time{margin-left:auto; font-size:11.5px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+  .level-goal{color:var(--ink-soft); max-width:72ch; margin:0 0 6px; font-size:13.5px;}
+  .level-pass{font-size:12px; color:var(--ink); background:var(--blue-dim); padding:8px 12px; margin-bottom:18px; max-width:76ch; border-left:2px solid var(--blue);}
+
+  .pieces{display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;} @media(max-width:640px){.pieces{grid-template-columns:1fr;}}
+  .piece{background:var(--paper-raised); border:1px solid var(--line); padding:14px 15px;}
+  .piece.done{border-color:var(--green);} .piece.failed{border-color:var(--red);}
+  .piece-top{display:flex; justify-content:space-between; gap:8px; margin-bottom:7px;}
+  .piece-badges{display:flex; gap:5px; flex-wrap:wrap;}
+  .badge{font-size:9.5px; font-family:'IBM Plex Mono',monospace; padding:2px 6px; border:1px solid var(--line); color:var(--ink-soft);}
+  .badge.free{color:var(--green); border-color:var(--green);} .badge.paid{color:var(--amber); border-color:var(--amber);}
+  .plat-tag{font-size:9.5px; font-weight:600; padding:2px 6px; color:#fff;}
+  .piece h3{font-size:14.5px; font-weight:600; margin:0 0 5px; line-height:1.3;}
+  .piece .why{font-size:12.5px; color:var(--ink-soft); margin:0 0 10px;}
+  .piece .why b{color:var(--ink);}
+  .piece-res{margin-bottom:10px;}
+  .piece-res a{font-size:12px; font-weight:600; text-decoration:none;}
+  .verify-block{border-top:1px dashed var(--line); padding-top:10px; margin-top:8px;}
+  .verify-type{font-size:10px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); margin-bottom:6px; display:block;}
+  .verify-row{display:flex; gap:6px;}
+  .verify-row input{flex:1; border:1px solid var(--line); background:var(--paper); padding:6px 8px; font-size:12px; font-family:inherit;}
+  .verify-row button{border:1px solid var(--ink); background:var(--ink); color:#fff; font-size:11.5px; padding:6px 10px; cursor:pointer; white-space:nowrap;}
+  .verify-status{font-size:11.5px; margin-top:6px; font-family:'IBM Plex Mono',monospace;}
+  .verify-status.ok{color:var(--green);} .verify-status.err{color:var(--red);} .verify-status.wait{color:var(--amber);}
+  .self-toggle{border:1px solid var(--line); background:var(--paper); color:var(--ink-soft); font-size:11.5px; padding:6px 10px; cursor:pointer;}
+  .self-toggle.done{border-color:var(--green); color:var(--green); background:var(--green-dim);}
+  .self-note{font-size:10.5px; color:var(--ink-soft); margin-top:4px; font-style:italic;}
+  .baseline-q{margin-bottom:10px;}
+  .baseline-q label{font-size:12.5px; display:block; margin-bottom:3px;}
+  .baseline-q select{width:100%; border:1px solid var(--line); background:var(--paper); padding:6px 8px; font-size:12.5px; font-family:inherit;}
+
+  footer{grid-column:1/-1; border-top:1px solid var(--line); padding:22px 40px; font-size:11.5px; color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="piece-shape" viewBox="0 0 100 100">
+    <path d="M20,20 C20,20 20,9 31,9 C42,9 42,20 42,20 L60,20 L60,38 C60,38 71,38 71,50 C71,62 60,62 60,62 L60,80 L42,80 C42,80 42,91 31,91 C20,91 20,80 20,80 L20,62 C20,62 9,62 9,50 C9,38 20,38 20,38 Z" stroke-width="4"/>
+  </symbol>
+</svg>
+
+<div class="shell" id="shell">
+  <div class="hero">
+    <div>
+      <div class="eyebrow-line">
+        <span>ARC Advisory · AI Mastery Jigsaw</span>
+        <button class="signout" id="signOutBtn">Sign out</button>
+      </div>
+      <h1>Verified, not self-declared.</h1>
+      <p class="sub">Every certified piece needs the issuer's own link before it counts done. Every ARC-built piece needs a live repo or deployment. Free routes lead every level.</p>
+      <div class="platform-strip" id="platformStrip"></div>
+    </div>
+    <div class="hero-stat">
+      <div class="big"><span id="pctDone">0</span>%</div>
+      <div class="label"><span id="doneCount">0</span> of <span id="totalCount">0</span> pieces verified</div>
+      <div class="mosaic" id="mosaic"></div>
+    </div>
+  </div>
+
+  <div class="connect-bar">
+    <div class="conn-item"><span class="conn-dot" id="dotSupabase"></span>Sync</div>
+    <div class="conn-item"><span class="conn-dot" id="dotGithub"></span>GitHub checks</div>
+    <div class="conn-item"><span class="conn-dot" id="dotNetlify"></span>Netlify checks</div>
+    <div class="conn-item"><span class="conn-dot" id="dotProxy"></span>Link checks</div>
+    <button class="conn-btn" id="connectToggleBtn">Manage connections</button>
+  </div>
+  <div class="connect-panel" id="connectPanel">
+    <div class="conn-block">
+      <h3>Sync — keeps progress the same on your phone and your laptop</h3>
+      <p>Optional. Without this, progress just stays on whichever device you're using. Create a free project at <a href="https://supabase.com" target="_blank" rel="noopener">supabase.com</a>, then in that project go to Settings → API and copy the two values below. Nothing to install, nothing to edit in a text editor.</p>
+      <div class="conn-grid">
+        <div class="conn-field"><label>PROJECT URL</label><input id="cfgSupaUrl" placeholder="https://xxxx.supabase.co"></div>
+        <div class="conn-field"><label>ANON PUBLIC KEY</label><input id="cfgSupaKey" placeholder="eyJ…"></div>
+        <div class="conn-field"><label>YOUR EMAIL</label><input id="cfgEmail" type="email" placeholder="you@arcadvisory.co.uk"></div>
+      </div>
+      <button class="btn-primary" id="sendMagicBtn" type="button">Save & send sign-in link</button>
+      <div class="verify-status" id="syncMsg" style="margin-top:8px;"></div>
+    </div>
+    <div class="conn-block">
+      <h3>GitHub — verifies your build pieces have real commits</h3>
+      <p>Create a fine-grained token at <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>, scope it to the repos you'll use, grant read-only Contents access.</p>
+      <div class="conn-grid"><div class="conn-field"><label>TOKEN</label><input id="cfgGhToken" type="password"></div></div>
+    </div>
+    <div class="conn-block">
+      <h3>Netlify — verifies a site is actually live</h3>
+      <p>Get a personal access token from <a href="https://app.netlify.com/user/applications" target="_blank" rel="noopener">app.netlify.com/user/applications</a>.</p>
+      <div class="conn-grid"><div class="conn-field"><label>TOKEN</label><input id="cfgNetlifyToken" type="password"></div></div>
+    </div>
+    <div class="conn-block">
+      <h3>Link verification proxy — checks any other link is genuinely live</h3>
+      <p>A tiny Supabase Edge Function does this (browsers can't reliably check third-party sites directly). Ask me for the function code and deploy steps when you're ready; paste its URL here once it's live.</p>
+      <div class="conn-grid"><div class="conn-field"><label>FUNCTION URL</label><input id="cfgProxyUrl" placeholder="https://xxxx.functions.supabase.co/check-url"></div></div>
+    </div>
+    <button class="btn-primary" id="saveConnBtn">Save connections</button>
+  </div>
+
+  <nav class="spine" id="spine"></nav>
+  <main id="main"></main>
+
+  <footer>
+    Built for Nick Riggott, ARC Advisory. Self-reported pieces are labelled as such because no issuing authority exists for them — that's stated plainly, not hidden.
+    Links, prices and product names change; recheck before paying for an exam.
+  </footer>
+</div>
+
+<script>
+/* ===================== SUPABASE, CONFIGURED FROM THE UI, NOT THE CODE ===================== */
+let supabase = null;
+let session = null;
+function buildSupabaseClient(){
+  supabase = null;
+  try{
+    if(conn.supaUrl && conn.supaKey && conn.supaUrl.startsWith("http") && window.supabase){
+      supabase = window.supabase.createClient(conn.supaUrl, conn.supaKey);
+    }
+  }catch(e){ supabase = null; }
+}
+
+/* ===================== PLATFORMS ===================== */
+const PLATFORMS = {
+  anthropic:{label:"Anthropic / Claude", color:"var(--amber)"},
+  openai:{label:"OpenAI / ChatGPT", color:"var(--blue)"},
+  google:{label:"Google / Gemini", color:"var(--green)"},
+  microsoft:{label:"Microsoft / Copilot", color:"var(--purple)"},
+  nvidia:{label:"NVIDIA", color:"var(--grey)"},
+  arc:{label:"ARC build", color:"var(--ink)"}
+};
+const VENDOR_DOMAINS = {
+  anthropic:["anthropic.skilljar.com","anthropic-partners.skilljar.com","credly.com"],
+  openai:["academy.openai.com"],
+  google:["skills.google","cloud.google.com","credly.com"],
+  microsoft:["learn.microsoft.com","microsoft.github.io","credly.com"],
+  deeplearning:["deeplearning.ai","learn.deeplearning.ai"]
+};
+
+/* ===================== LEVELS ===================== */
+const LEVELS = [
+  {id:0, name:"Baseline", time:"Week 1 · ~15 hrs",
+   goal:"Confirm the starting line and get every tool live before content starts.",
+   pass:"Baseline questions answered honestly, accounts live, this tracker is your single source of truth."},
+  {id:1, name:"Foundations & AI Fluency", time:"Weeks 1–3 · ~56 hrs",
+   goal:"Build a correct mental model of what these models can and can't do, across Claude, ChatGPT, Copilot and Gemini, plus where Grok genuinely differs.",
+   pass:"<b>Claude Certified Associate – Foundations</b> verified. First LinkedIn explainer published."},
+  {id:2, name:"Context Engineering & Prompt Systems", time:"Weeks 3–6 · ~60 hrs",
+   goal:"Move past clever prompts into managing the whole context window, and ship your first reusable Claude Skill.",
+   pass:"One ARC workflow automated as a working Claude Skill, live in a GitHub repo with real commits."},
+  {id:3, name:"RAG & Tool Use", time:"Weeks 6–11 · ~90 hrs",
+   goal:"Ground a model in ARC's own material and give it callable tools instead of just conversation.",
+   pass:"A working RAG assistant, verified live in its repo, answers client-style questions with citations."},
+  {id:4, name:"MCP, Agents & Orchestration", time:"Weeks 11–19 · ~154 hrs",
+   goal:"The core build phase, connecting agents to real systems across Copilot Studio, Gemini Enterprise and Claude's own stack.",
+   pass:"<b>Claude Certified Developer – Foundations</b> verified. Three agents shipped and evidenced."},
+  {id:5, name:"Evaluation, Deployment & Governance", time:"Weeks 19–25 · ~124 hrs",
+   goal:"Prove an agent works with numbers, and speak the governance and trust and safety language IT and security buyers actually use, across Microsoft and Google's frameworks as well as your own.",
+   pass:"<b>Google Cloud Generative AI Leader</b> verified. One shipped agent gets a documented, evidenced evaluation harness."},
+  {id:6, name:"Capstone — Thought Leader", time:"Weeks 25–36 · ~150 hrs", capstone:true,
+   goal:"Convert the build work into visible, evidenced authority in the sales and GTM consulting market.",
+   pass:"A flagship agent with a client-grade metric, a named ARC framework, sustained LinkedIn output, a verified portfolio page."}
+];
+
+/* ===================== PIECES ===================== */
+/* verify.kind: 'self' (no issuer exists, honest toggle) | 'vendor' (issuer link, domain-checked) |
+   'github' (repo checked via GitHub API) | 'netlify' (site checked via Netlify API) | 'link' (reachability only, via proxy) */
+const PIECES = [
+  {id:"l0-baseline", level:0, platform:"arc", kind:"Build", cost:"Free", hours:5, title:"Baseline self-assessment",
+   why:"Real starting point, not a guess, so every later level is measured against where you actually are.",
+   link:null, verify:{kind:"baseline"}},
+  {id:"l0-setup", level:0, platform:"arc", kind:"Build", cost:"Free", hours:10, title:"Environment setup — Claude, GitHub, Supabase, Netlify",
+   why:"Every later piece assumes these exist. Do it once, properly.", link:"https://claude.ai", verify:{kind:"self"}},
+
+  {id:"l1-claude101", level:1, platform:"anthropic", kind:"Course", cost:"Free", hours:2, title:"Claude 101", why:"The fastest correct grounding in how Claude actually works.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
+  {id:"l1-fluency", level:1, platform:"anthropic", kind:"Course", cost:"Free", hours:3, title:"AI Fluency: Framework & Foundations", why:"Vocabulary to talk about AI capability with clients precisely.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
+  {id:"l1-limits", level:1, platform:"anthropic", kind:"Course", cost:"Free", hours:2, title:"AI Capabilities and Limitations", why:"Knowing where these models fail stops you overselling a client.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
+  {id:"l1-oa-found", level:1, platform:"openai", kind:"Course", cost:"Free", hours:1.5, title:"OpenAI Academy: AI Foundations", why:"A second lab's framing for when a client is on ChatGPT.", link:"https://academy.openai.com/public/courses/ai-foundations-juzjs", verify:{kind:"vendor", set:"openai"}},
+  {id:"l1-oa-applied", level:1, platform:"openai", kind:"Course", cost:"Free", hours:1.5, title:"OpenAI Academy: Applied AI Foundations", why:"Bridges theory into applied use cases you can cite directly.", link:"https://academy.openai.com/public/courses/applied-ai-foundations-hgk7r", verify:{kind:"vendor", set:"openai"}},
+  {id:"l1-ms-copilot", level:1, platform:"microsoft", kind:"Course", cost:"Free", hours:2, title:"Get started with Microsoft 365 Copilot", why:"The largest installed desktop AI surface on the planet. Most prospects already have it.", link:"https://learn.microsoft.com/en-us/training/paths/get-started-with-microsoft-365-copilot/", verify:{kind:"vendor", set:"microsoft"}},
+  {id:"l1-gemini-workspace", level:1, platform:"google", kind:"Course", cost:"Free (badge)", hours:2, title:"Google Workspace with Gemini: Foundations", why:"Gemini's equivalent of the Copilot module. Issues a real badge.", link:"https://www.skills.google/paths/249/course_templates/888", verify:{kind:"vendor", set:"google"}},
+  {id:"l1-grok", level:1, platform:"arc", kind:"Content", cost:"Free", hours:2, title:"Know Grok's actual edge", why:"Grok's genuine, verified differentiator is live X/Twitter data blended into cited research, not general reasoning quality. One clear sentence you can say to a client with confidence.", link:"https://a2a-protocol.org", verify:{kind:"self"}},
+  {id:"l1-exam", level:1, platform:"anthropic", kind:"Exam", cost:"$99", hours:2, title:"Claude Certified Associate – Foundations", why:"The credential built for consultants and sellers, not engineers.", link:"https://anthropic-partners.skilljar.com/claude-certified-associate-foundations-certification", verify:{kind:"vendor", set:"anthropic"}},
+
+  {id:"l2-context", level:2, platform:"anthropic", kind:"Content", cost:"Free", hours:3, title:"'Effective context engineering for AI agents'", why:"The primary source on the discipline that replaced prompt engineering.", link:"https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents", verify:{kind:"self"}},
+  {id:"l2-skills", level:2, platform:"anthropic", kind:"Course", cost:"Free", hours:3, title:"Introduction to Agent Skills", why:"The smallest reusable unit every later agent depends on.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
+  {id:"l2-cowork", level:2, platform:"anthropic", kind:"Course", cost:"Free", hours:4, title:"Introduction to Claude Cowork", why:"Where a non-developer builds real automation without code first.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
+  {id:"l2-build", level:2, platform:"arc", kind:"Build", cost:"Free", hours:16, title:"Ship your first ARC Skill", why:"Automate one real ARC workflow end to end, in a public repo.", link:null, verify:{kind:"github"}},
+
+  {id:"l3-api", level:3, platform:"anthropic", kind:"Course", cost:"Free", hours:6, title:"Building with the Claude API", why:"Retrieval, grounding and tool use, the mechanics behind every agent from here.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
+  {id:"l3-nvidia-genai", level:3, platform:"nvidia", kind:"Course", cost:"Free", hours:2, title:"NVIDIA: Generative AI Explained", why:"No-code primer from the hardware layer up.", link:"https://resources.nvidia.com/en-us-generative-ai-nurture-courses/dli", verify:{kind:"self"}},
+  {id:"l3-nvidia-rag", level:3, platform:"nvidia", kind:"Course", cost:"Free", hours:8, title:"NVIDIA: Agentic RAG project path", why:"A guided free project showing retrieval and agents working together.", link:"https://developer.nvidia.com/topics/ai/how-to-build-agentic-ai-rag", verify:{kind:"self"}},
+  {id:"l3-build", level:3, platform:"arc", kind:"Build", cost:"Free", hours:20, title:"Deploy a RAG assistant on ARC's own methodology", why:"Case Study #1: grounded in ARC's own docs, answers with citations, live in a repo.", link:null, verify:{kind:"github"}},
+
+  {id:"l4-mcp-intro", level:4, platform:"anthropic", kind:"Course", cost:"Free", hours:4, title:"Introduction to Model Context Protocol", why:"How an agent reaches real systems. Now used well beyond Anthropic.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
+  {id:"l4-mcp-adv", level:4, platform:"anthropic", kind:"Course", cost:"Free", hours:4, title:"MCP: Advanced Topics", why:"Tool explosion and coordination, the two things that break agents at scale.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
+  {id:"l4-subagents", level:4, platform:"anthropic", kind:"Course", cost:"Free", hours:3, title:"Introduction to Subagents", why:"Delegating parts of a task, the pattern behind every serious multi-step system.", link:"https://anthropic.skilljar.com/", verify:{kind:"self"}},
+  {id:"l4-dl-mcp", level:4, platform:"anthropic", kind:"Course", cost:"Free", hours:2, title:"DeepLearning.AI: MCP — Build Rich-Context AI Apps", why:"Short, hands-on, taught with Anthropic.", link:"https://learn.deeplearning.ai/courses/mcp-build-rich-context-ai-apps-with-anthropic/information", verify:{kind:"vendor", set:"deeplearning"}},
+  {id:"l4-dl-agentsdk", level:4, platform:"anthropic", kind:"Course", cost:"Free", hours:3, title:"DeepLearning.AI: Agent Skills with Anthropic", why:"Your ceiling as a non-developer: enough of the Agent SDK to say 'I build agents', credibly.", link:"https://www.deeplearning.ai/courses/agent-skills-with-anthropic", verify:{kind:"vendor", set:"deeplearning"}},
+  {id:"l4-relevance", level:4, platform:"arc", kind:"Build", cost:"Free tier", hours:20, title:"Build a GTM agent in Relevance AI", why:"No-code, sales-native, used in production by real GTM teams.", link:"https://relevanceai.com", verify:{kind:"link"}},
+  {id:"l4-n8n", level:4, platform:"arc", kind:"Build", cost:"Free (self-host)", hours:24, title:"Build an orchestration agent in n8n", why:"Deeper control, useful the day a client needs self-hosted workflows.", link:"https://n8n.io", verify:{kind:"link"}},
+  {id:"l4-copilot-academy", level:4, platform:"microsoft", kind:"Course", cost:"Free (badges)", hours:10, title:"Copilot Studio Agent Academy", why:"Free, ranked training to production agents in the no-code builder sat inside Microsoft 365.", link:"https://microsoft.github.io/agent-academy/", verify:{kind:"vendor", set:"microsoft"}},
+  {id:"l4-copilot-studio-ms", level:4, platform:"microsoft", kind:"Course", cost:"Free", hours:6, title:"Create agents in Microsoft Copilot Studio", why:"The official Microsoft Learn path: topics, entities, knowledge sources, publishing.", link:"https://learn.microsoft.com/en-us/training/paths/create-extend-custom-copilots-microsoft-copilot-studio/", verify:{kind:"vendor", set:"microsoft"}},
+  {id:"l4-gemini-enterprise", level:4, platform:"google", kind:"Course", cost:"Free", hours:8, title:"Gemini Enterprise Agent Ready (GEAR): multi-agent systems", why:"Google's free hands-on labs on the platform formerly called Vertex AI.", link:"https://cloud.google.com/blog/topics/training-certifications/free-gemini-enterrprise-training", verify:{kind:"self"}},
+  {id:"l4-exam", level:4, platform:"anthropic", kind:"Exam", cost:"$125", hours:3, title:"Claude Certified Developer – Foundations", why:"Validates the API, Claude Code and MCP skills you've just built with.", link:"https://anthropic-partners.skilljar.com/claude-certified-developer-foundations-certification", verify:{kind:"vendor", set:"anthropic"}},
+
+  {id:"l5-eval", level:5, platform:"nvidia", kind:"Course", cost:"Free", hours:6, title:"NVIDIA: How to Evaluate AI Agents", why:"Proving an agent works with numbers, not a demo.", link:"https://developer.nvidia.com/topics/ai/how-to-evaluate-ai-agents", verify:{kind:"self"}},
+  {id:"l5-gcloud", level:5, platform:"google", kind:"Course", cost:"Free", hours:14, title:"Google Cloud: Generative AI Leader learning path", why:"Strategy and governance framing, the language risk-aware buyers use.", link:"https://www.skills.google/paths/1951", verify:{kind:"vendor", set:"google"}},
+  {id:"l5-ms-governance", level:5, platform:"microsoft", kind:"Course", cost:"Free", hours:4, title:"Prepare your organization for Microsoft 365 Copilot", why:"The exact security and compliance conversation an enterprise IT lead will have before Copilot touches client data.", link:"https://learn.microsoft.com/en-us/training/paths/prepare-your-organization-microsoft-365-copilot/", verify:{kind:"vendor", set:"microsoft"}},
+  {id:"l5-guardrails", level:5, platform:"arc", kind:"Build", cost:"Free", hours:14, title:"Add an evaluation harness and guardrails to a shipped agent", why:"Turns a demo into a defensible, documented system, evidenced in the repo.", link:null, verify:{kind:"github"}},
+  {id:"l5-exam", level:5, platform:"google", kind:"Exam", cost:"Paid, check current fee", hours:2, title:"Google Cloud Generative AI Leader exam", why:"A recognised, non-coding governance credential.", link:"https://www.skills.google/paths/1951", verify:{kind:"vendor", set:"google"}},
+  {id:"l5-ms-cert", level:5, platform:"microsoft", kind:"Exam", cost:"Paid, check current fee", hours:2, title:"Microsoft 365 Certified: Copilot and Agent Administration Fundamentals", why:"The named Microsoft credential for Copilot and agent governance.", link:"https://learn.microsoft.com/en-us/credentials/certifications/copilot-and-agent-administration-fundamentals/", verify:{kind:"vendor", set:"microsoft"}},
+
+  {id:"l6-flagship", level:6, platform:"arc", kind:"Build", cost:"Free–low cost", hours:60, title:"Ship a flagship agent with a client-grade metric", why:"One agent, one real client number. The case study that sells ARC.", link:null, verify:{kind:"link"}},
+  {id:"l6-framework", level:6, platform:"arc", kind:"Content", cost:"Free", hours:20, title:"Publish a named ARC AI framework", why:"Original methodology, not the badges behind it, is what earns 'thought leader'.", link:null, verify:{kind:"link"}},
+  {id:"l6-linkedin", level:6, platform:"arc", kind:"Content", cost:"Free", hours:40, title:"12 weeks of consistent, specific LinkedIn output", why:"Cadence can't be auto-verified. Paste one representative post as your evidence link, honestly labelled.", link:null, verify:{kind:"link"}},
+  {id:"l6-portfolio", level:6, platform:"arc", kind:"Build", cost:"Free", hours:14, title:"Publish a 4–5 case study portfolio page", why:"The asset a technical buyer checks before a first call, live on your own site.", link:null, verify:{kind:"netlify"}},
+  {id:"l6-architect", level:6, platform:"anthropic", kind:"Exam", cost:"$125", hours:3, title:"Optional: Claude Certified Architect – Foundations", why:"Only if a client base is asking for deep architectural credibility.", link:"https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification", verify:{kind:"vendor", set:"anthropic"}},
+];
+
+const BASELINE_QUESTIONS = [
+  {id:"q1", text:"Have you completed any Anthropic Academy course so far?", options:["Not yet","Started one","Completed one or more"]},
+  {id:"q2", text:"Have you ever shipped anything (script, automation, agent) that a client actually uses?", options:["No","Built, not client-facing","Yes, in real use"]},
+  {id:"q3", text:"How comfortable are you explaining the difference between a model and an agent, unscripted, to a client?", options:["Not comfortable","Could get through it","Fully comfortable"]},
+  {id:"q4", text:"Do you have GitHub, Supabase and Netlify accounts already set up?", options:["None yet","Some of them","All three"]},
+];
+
+/* ===================== STATE ===================== */
+const STORAGE_KEY = "arc-jigsaw-progress-v3";
+const CONN_KEY = "arc-jigsaw-connections-v1";
+let state = {pieces:{}, baseline:{}, updatedAt:0};
+let conn = {gh:"", netlify:"", proxy:"", supaUrl:"", supaKey:""};
+let activePlatforms = new Set(Object.keys(PLATFORMS));
+
+function loadLocal(){ try{ const r=JSON.parse(localStorage.getItem(STORAGE_KEY)); if(r&&r.pieces) state=r; }catch(e){} }
+function saveLocal(){ state.updatedAt=Date.now(); try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} pushRemote(); }
+function loadConn(){ try{ const r=JSON.parse(localStorage.getItem(CONN_KEY)); if(r) conn=r; }catch(e){} }
+function saveConn(){ try{ localStorage.setItem(CONN_KEY, JSON.stringify(conn)); }catch(e){} updateConnDots(); }
+
+function pieceState(id){ return state.pieces[id] || {status:"none"}; }
+function setPieceState(id, obj){ state.pieces[id] = Object.assign({}, pieceState(id), obj); saveLocal(); renderAll(); }
+
+/* ===================== SUPABASE AUTH + SYNC ===================== */
+let syncTimer = null;
+async function initSupabase(){
+  if(!supabase){ document.getElementById("gateMsg").textContent = "Supabase isn't configured in this file yet — using local-only mode."; return; }
+  if(!supabase) return;
+  try{
+    const {data:{session:s}} = await supabase.auth.getSession();
+    session = s;
+    if(session){ pullRemote().then(renderAll); setDot("dotSupabase", true); }
+    supabase.auth.onAuthStateChange((event, s)=>{
+      session = s;
+      if(session){ pullRemote().then(renderAll); }
+    });
+  }catch(e){ setDot("dotSupabase", false); }
+}
+async function sendMagicLink(){
+  const msg = document.getElementById("syncMsg");
+  const url = document.getElementById("cfgSupaUrl").value.trim();
+  const key = document.getElementById("cfgSupaKey").value.trim();
+  const email = document.getElementById("cfgEmail").value.trim();
+  if(!url || !key){ msg.textContent = "Add the project URL and key first."; msg.className="verify-status err"; return; }
+  if(!email){ msg.textContent = "Add your email too."; msg.className="verify-status err"; return; }
+  conn.supaUrl = url; conn.supaKey = key; saveConn();
+  buildSupabaseClient();
+  if(!supabase){ msg.textContent = "Couldn't connect — double check the project URL and key."; msg.className="verify-status err"; return; }
+  msg.textContent = "Sending…"; msg.className="verify-status wait";
+  try{
+    const {error} = await supabase.auth.signInWithOtp({email});
+    if(error){ msg.textContent = "Failed: "+error.message; msg.className="verify-status err"; }
+    else { msg.textContent = "Check your inbox and click the link, then come back to this tab."; msg.className="verify-status ok"; }
+  }catch(e){ msg.textContent = "Something went wrong sending the link."; msg.className="verify-status err"; }
+}
+async function pullRemote(){
+  if(!supabase || !session) return;
+  try{
+    const {data, error} = await supabase.from("progress").select("*").eq("user_id", session.user.id).maybeSingle();
+    if(error) throw error;
+    if(data && (data.updated_at_ms||0) > (state.updatedAt||0)){
+      state = {pieces:data.pieces||{}, baseline:data.baseline||{}, updatedAt:data.updated_at_ms||0};
+      saveLocalNoPush();
+      renderAll();
+    }
+    setDot("dotSupabase", true);
+  }catch(e){ setDot("dotSupabase", false); }
+}
+function saveLocalNoPush(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
+function pushRemote(){
+  if(!supabase || !session) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(async ()=>{
+    try{
+      await supabase.from("progress").upsert({
+        user_id: session.user.id,
+        pieces: state.pieces,
+        baseline: state.baseline,
+        updated_at_ms: state.updatedAt
+      });
+      setDot("dotSupabase", true);
+    }catch(e){ setDot("dotSupabase", false); }
+  }, 1200);
+}
+function setDot(id, ok){ const el=document.getElementById(id); if(el) el.className = "conn-dot" + (ok?" ok":" err"); }
+function updateConnDots(){
+  setDot("dotGithub", !!conn.gh);
+  setDot("dotNetlify", !!conn.netlify);
+  setDot("dotProxy", !!conn.proxy);
+}
+
+function boot(){
+  loadLocal();
+  loadConn();
+  updateConnDots();
+  renderAll();
+  buildSupabaseClient();
+  if(supabase){ initSupabase(); }
+}
+
+/* ===================== VERIFICATION CHECKS ===================== */
+function domainOf(url){ try{ return new URL(url).hostname.replace(/^www\./,""); }catch(e){ return null; } }
+function domainAllowed(url, allowList){
+  const h = domainOf(url); if(!h) return false;
+  return allowList.some(d => h === d || h.endsWith("."+d));
+}
+function parseGithubRepo(url){
+  const m = (url||"").match(/github\.com\/([^\/]+)\/([^\/\s#?]+)/i);
+  return m ? {owner:m[1], repo:m[2].replace(/\.git$/,"")} : null;
+}
+
+async function verifyVendor(piece, url, statusEl){
+  const allow = VENDOR_DOMAINS[piece.verify.set] || [];
+  if(!domainAllowed(url, allow)){
+    return {ok:false, msg:"Link isn't on a recognised issuer domain ("+allow.join(", ")+")"};
+  }
+  if(!conn.proxy){ return {ok:false, msg:"Set up the link-check proxy first (Manage connections)"}; }
+  try{
+    const res = await fetch(conn.proxy, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({url})});
+    const data = await res.json();
+    if(data.ok) return {ok:true, msg:"Verified live on "+domainOf(url)};
+    return {ok:false, msg:"Link didn't resolve (status "+(data.status||"?")+")"};
+  }catch(e){ return {ok:false, msg:"Couldn't reach the proxy — check the function URL"}; }
+}
+
+async function verifyLink(url){
+  if(!/^https?:\/\//.test(url)) return {ok:false, msg:"Needs a full https:// link"};
+  if(!conn.proxy){ return {ok:false, msg:"Set up the link-check proxy first (Manage connections)"}; }
+  try{
+    const res = await fetch(conn.proxy, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({url})});
+    const data = await res.json();
+    return data.ok ? {ok:true, msg:"Link is live"} : {ok:false, msg:"Link didn't resolve (status "+(data.status||"?")+")"};
+  }catch(e){ return {ok:false, msg:"Couldn't reach the proxy"}; }
+}
+
+async function verifyGithub(url){
+  const parsed = parseGithubRepo(url);
+  if(!parsed) return {ok:false, msg:"Paste a real github.com/owner/repo URL"};
+  if(!conn.gh) return {ok:false, msg:"Add a GitHub token first (Manage connections)"};
+  try{
+    const headers = {"Authorization":"Bearer "+conn.gh, "Accept":"application/vnd.github+json"};
+    const repoRes = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`, {headers});
+    if(!repoRes.ok) return {ok:false, msg:"Repo not found or not accessible (status "+repoRes.status+")"};
+    const commitsRes = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}/commits?per_page=1`, {headers});
+    if(!commitsRes.ok) return {ok:false, msg:"Couldn't read commits (status "+commitsRes.status+")"};
+    const commits = await commitsRes.json();
+    if(!Array.isArray(commits) || commits.length===0) return {ok:false, msg:"Repo exists but has no commits yet"};
+    const date = commits[0].commit && commits[0].commit.author ? commits[0].commit.author.date : null;
+    return {ok:true, msg:"Verified — real commits, last one "+(date?new Date(date).toLocaleDateString():"recorded")};
+  }catch(e){ return {ok:false, msg:"GitHub check failed"}; }
+}
+
+async function verifyNetlify(url){
+  if(!/^https?:\/\//.test(url)) return {ok:false, msg:"Needs a full https:// link"};
+  if(!conn.netlify) return {ok:false, msg:"Add a Netlify token first (Manage connections)"};
+  try{
+    const res = await fetch("https://api.netlify.com/api/v1/sites", {headers:{"Authorization":"Bearer "+conn.netlify}});
+    if(!res.ok) return {ok:false, msg:"Couldn't read your Netlify sites (status "+res.status+")"};
+    const sites = await res.json();
+    const target = domainOf(url);
+    const match = sites.find(s => (s.ssl_url && domainOf(s.ssl_url)===target) || (s.custom_domain && s.custom_domain===target) || (s.url && domainOf(s.url)===target));
+    if(!match) return {ok:false, msg:"No live Netlify site matches that URL"};
+    if(match.state !== "current" && match.state !== "ready") return {ok:false, msg:"Site found but not currently published (state: "+match.state+")"};
+    return {ok:true, msg:"Verified live — last published "+(match.published_deploy ? new Date(match.published_deploy.published_at).toLocaleDateString() : "recently")};
+  }catch(e){ return {ok:false, msg:"Netlify check failed"}; }
+}
+
+async function runVerify(piece, url, btn, statusEl){
+  btn.disabled = true; statusEl.className = "verify-status wait"; statusEl.textContent = "Checking…";
+  let result;
+  if(piece.verify.kind==="vendor") result = await verifyVendor(piece, url, statusEl);
+  else if(piece.verify.kind==="github") result = await verifyGithub(url);
+  else if(piece.verify.kind==="netlify") result = await verifyNetlify(url);
+  else result = await verifyLink(url);
+  btn.disabled = false;
+  if(result.ok){
+    statusEl.className = "verify-status ok"; statusEl.textContent = result.msg;
+    setPieceState(piece.id, {status:"done", evidence:url, verifiedAt:Date.now(), note:result.msg});
+  } else {
+    statusEl.className = "verify-status err"; statusEl.textContent = result.msg;
+    setPieceState(piece.id, {status:"failed", evidence:url, note:result.msg});
+  }
+}
+
+/* ===================== BADGES ===================== */
+function levelComplete(levelId){
+  const pieces = PIECES.filter(p=>p.level===levelId);
+  return pieces.length>0 && pieces.every(p=> p.verify.kind==="self" ? pieceState(p.id).status==="done" : pieceState(p.id).status==="done");
+}
+function drawBadge(canvas, lvl, unlocked){
+  const ctx = canvas.getContext("2d"); const W=canvas.width=280, H=canvas.height=280;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = unlocked ? "#1B2A3D" : "#CBC4B5";
+  ctx.beginPath(); ctx.arc(W/2,H/2,122,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle = unlocked ? "#B8622A" : "#9C9788"; ctx.lineWidth=5;
+  ctx.beginPath(); ctx.arc(W/2,H/2,122,0,Math.PI*2); ctx.stroke();
+  ctx.fillStyle="#F8F6F0"; ctx.textAlign="center";
+  ctx.font="600 18px Inter, sans-serif"; ctx.fillText("ARC ADVISORY", W/2, 84);
+  ctx.font="700 58px Inter, sans-serif"; ctx.fillText("L"+lvl.id, W/2, 156);
+  ctx.font="500 14px Inter, sans-serif";
+  const words=lvl.name.toUpperCase().split(" "); let line="", ly=190;
+  words.forEach((w,i)=>{ const t=line+w+" "; if(ctx.measureText(t).width>190 && i>0){ ctx.fillText(line,W/2,ly); line=w+" "; ly+=17; } else line=t; });
+  ctx.fillText(line, W/2, ly);
+}
+function renderBadges(){
+  const grid = document.getElementById("badgesGrid"); if(!grid) return; grid.innerHTML="";
+  LEVELS.forEach(lvl=>{
+    const unlocked = levelComplete(lvl.id);
+    const card = document.createElement("div"); card.className="badge-card"+(unlocked?"":" locked");
+    card.innerHTML = `<canvas></canvas><div class="bname">Level ${lvl.id} · ${lvl.name}</div>
+      <div class="bstatus">${unlocked?"Every piece verified":"Verify every piece to unlock"}</div>
+      <div class="badge-actions"><button class="dl-btn" ${unlocked?"":"disabled"}>Download PNG</button><button class="cap-btn" ${unlocked?"":"disabled"}>Copy caption</button></div>`;
+    const canvas = card.querySelector("canvas"); drawBadge(canvas, lvl, unlocked);
+    if(unlocked){
+      card.querySelector(".dl-btn").addEventListener("click", ()=>{
+        const a=document.createElement("a"); a.download=`arc-jigsaw-level-${lvl.id}.png`; a.href=canvas.toDataURL("image/png"); a.click();
+      });
+      card.querySelector(".cap-btn").addEventListener("click", ()=>{
+        const cap = `Verified: Level ${lvl.id} of my AI Mastery Jigsaw, ${lvl.name}. Every piece backed by a real credential or a live build, not a checkbox.\n\n#AIMasteryJigsaw #RevenueArchitecture #ARCAdvisory`;
+        navigator.clipboard && navigator.clipboard.writeText(cap).catch(()=>{});
+      });
+    }
+    grid.appendChild(card);
+  });
+}
+
+/* ===================== RENDER ===================== */
+function isFree(cost){ return /free/i.test(cost); }
+
+function renderPlatformStrip(){
+  const strip=document.getElementById("platformStrip"); strip.innerHTML="";
+  Object.entries(PLATFORMS).forEach(([key,p])=>{
+    const chip=document.createElement("span");
+    chip.className="platform-chip"+(activePlatforms.has(key)?" active":"");
+    chip.textContent=p.label;
+    if(activePlatforms.has(key)){ chip.style.background=p.color; chip.style.borderColor=p.color; }
+    chip.addEventListener("click", ()=>{ activePlatforms.has(key)?activePlatforms.delete(key):activePlatforms.add(key); renderAll(); });
+    strip.appendChild(chip);
+  });
+}
+function renderMosaic(){
+  const mosaic=document.getElementById("mosaic"); mosaic.innerHTML="";
+  PIECES.forEach(p=>{
+    const s=pieceState(p.id).status;
+    const cls = s==="done"?"mp-done":(s==="failed"?"mp-progress":"mp-none");
+    const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    svg.setAttribute("viewBox","0 0 100 100"); svg.setAttribute("title",p.title);
+    const use=document.createElementNS("http://www.w3.org/2000/svg","use");
+    use.setAttribute("href","#piece-shape"); use.setAttribute("class",cls);
+    svg.appendChild(use); mosaic.appendChild(svg);
+  });
+}
+function renderStats(){
+  const done=PIECES.filter(p=>pieceState(p.id).status==="done");
+  document.getElementById("pctDone").textContent=Math.round((done.length/PIECES.length)*100);
+  document.getElementById("doneCount").textContent=done.length;
+  document.getElementById("totalCount").textContent=PIECES.length;
+}
+function renderSpine(){
+  const spine=document.getElementById("spine"); spine.innerHTML="";
+  const bl=document.createElement("a"); bl.href="#badges"; bl.className="spine-jump"; bl.textContent="★ Badges"; spine.appendChild(bl);
+  LEVELS.forEach(lvl=>{
+    const pieces=PIECES.filter(p=>p.level===lvl.id);
+    const done=pieces.filter(p=>pieceState(p.id).status==="done").length;
+    const pct=pieces.length?Math.round((done/pieces.length)*100):0;
+    const a=document.createElement("a"); a.href="#level-"+lvl.id; a.className="spine-item";
+    a.innerHTML=`<span class="lvl-name">${lvl.id} · ${lvl.name}</span><span class="lvl-meta">${done}/${pieces.length} verified</span><div class="spine-bar"><div class="spine-bar-fill" style="width:${pct}%"></div></div>`;
+    spine.appendChild(a);
+  });
+  const controls=document.createElement("div"); controls.className="spine-controls";
+  controls.innerHTML=`<button class="reset-link" id="resetBtn">Reset all progress</button>`;
+  spine.appendChild(controls);
+  document.getElementById("resetBtn").addEventListener("click", ()=>{
+    if(confirm("Clear all saved progress? This affects every device once it syncs.")){
+      state={pieces:{}, baseline:{}, updatedAt:Date.now()}; saveLocal(); renderAll();
+    }
+  });
+}
+
+function renderPieceCard(p){
+  const st = pieceState(p.id);
+  const plat = PLATFORMS[p.platform];
+  const badgesHtml = `<span class="plat-tag" style="background:${plat.color}">${plat.label}</span>
+    <span class="badge">${p.kind}</span><span class="badge ${isFree(p.cost)?'free':'paid'}">${p.cost}</span><span class="badge">${p.hours}h</span>`;
+  const resHtml = p.link ? `<div class="piece-res"><a href="${p.link}" target="_blank" rel="noopener">Open resource ↗</a></div>` : "";
+
+  let verifyHtml = "";
+  if(p.verify.kind === "baseline"){
+    verifyHtml = `<div class="verify-block"><span class="verify-type">SELF-ASSESSMENT — no external record possible</span>` +
+      BASELINE_QUESTIONS.map(q=>{
+        const val = (state.baseline||{})[q.id] || "";
+        return `<div class="baseline-q"><label>${q.text}</label><select data-q="${q.id}">
+          <option value="">Choose…</option>
+          ${q.options.map(o=>`<option ${val===o?"selected":""}>${o}</option>`).join("")}
+        </select></div>`;
+      }).join("");
+    verifyHtml += `</div>`;
+  } else if(p.verify.kind === "self"){
+    verifyHtml = `<div class="verify-block"><span class="verify-type">SELF-REPORTED — no issuing authority exists for this</span>
+      <button class="self-toggle ${st.status==='done'?'done':''}" data-id="${p.id}">${st.status==='done'?'Marked done':'Mark done'}</button></div>`;
+  } else {
+    const label = p.verify.kind==="vendor" ? "VENDOR-VERIFIED — paste the credential link the issuer gave you"
+      : p.verify.kind==="github" ? "GITHUB-VERIFIED — paste the repo URL"
+      : p.verify.kind==="netlify" ? "NETLIFY-VERIFIED — paste the live site URL"
+      : "LINK-VERIFIED — paste the live artifact URL";
+    verifyHtml = `<div class="verify-block"><span class="verify-type">${label}</span>
+      <div class="verify-row">
+        <input type="text" placeholder="https://…" value="${st.evidence||''}" data-verify-input="${p.id}">
+        <button data-verify-btn="${p.id}">Verify</button>
+      </div>
+      <div class="verify-status ${st.status==='done'?'ok':st.status==='failed'?'err':''}">${st.note||''}</div>
+    </div>`;
+  }
+
+  const div = document.createElement("div");
+  div.className = "piece" + (st.status==="done"?" done":st.status==="failed"?" failed":"");
+  div.innerHTML = `<div class="piece-top"><div class="piece-badges">${badgesHtml}</div></div>
+    <h3>${p.title}</h3><p class="why">${p.why}</p>${resHtml}${verifyHtml}`;
+  return div;
+}
+
+function renderMain(){
+  const main=document.getElementById("main"); main.innerHTML="";
+  const bs=document.createElement("section"); bs.className="badges-section"; bs.id="badges";
+  bs.innerHTML=`<div class="badges-head"><h2>Badges</h2><p>Unlocks only when every piece in a level is independently verified.</p></div><div class="badges-grid" id="badgesGrid"></div>`;
+  main.appendChild(bs); renderBadges();
+
+  LEVELS.forEach(lvl=>{
+    let pieces = PIECES.filter(p=>p.level===lvl.id && activePlatforms.has(p.platform));
+    pieces = pieces.slice().sort((a,b)=> (isFree(a.cost)===isFree(b.cost))?0:(isFree(a.cost)?-1:1));
+    const section=document.createElement("section"); section.className="level-block"; section.id="level-"+lvl.id;
+    section.innerHTML = `<div class="level-head"><span class="lvl-tag">LEVEL ${lvl.id}${lvl.capstone?' · CAPSTONE':''}</span><h2>${lvl.name}</h2><span class="lvl-time">${lvl.time}</span></div>
+      <p class="level-goal">${lvl.goal}</p><p class="level-pass">Pass criteria: ${lvl.pass}</p><div class="pieces" id="pieces-${lvl.id}"></div>`;
+    main.appendChild(section);
+    const container = section.querySelector(".pieces");
+    pieces.forEach(p => container.appendChild(renderPieceCard(p)));
+  });
+
+  main.querySelectorAll("[data-verify-btn]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const id = btn.dataset.verifyBtn;
+      const piece = PIECES.find(p=>p.id===id);
+      const input = main.querySelector(`[data-verify-input="${id}"]`);
+      const statusEl = btn.closest(".verify-block").querySelector(".verify-status");
+      runVerify(piece, input.value.trim(), btn, statusEl);
+    });
+  });
+  main.querySelectorAll(".self-toggle").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const id = btn.dataset.id;
+      const cur = pieceState(id).status;
+      setPieceState(id, {status: cur==="done" ? "none" : "done"});
+    });
+  });
+  main.querySelectorAll("[data-q]").forEach(sel=>{
+    sel.addEventListener("change", ()=>{
+      state.baseline = state.baseline || {};
+      state.baseline[sel.dataset.q] = sel.value;
+      const allAnswered = BASELINE_QUESTIONS.every(q=>state.baseline[q.id]);
+      setPieceState("l0-baseline", {status: allAnswered ? "done" : "none"});
+      saveLocal();
+    });
+  });
+}
+
+function renderAll(){ renderStats(); renderMosaic(); renderPlatformStrip(); renderSpine(); renderMain(); }
+
+/* ===================== WIRING — each block independent, one failure can't break another ===================== */
+function wire(id, evt, fn){ const el=document.getElementById(id); if(el) el.addEventListener(evt, fn); }
+
+wire("sendMagicBtn","click", (e)=>{ e.preventDefault(); sendMagicLink(); });
+wire("signOutBtn","click", async ()=>{
+  try{ if(supabase) await supabase.auth.signOut(); }catch(e){}
+  conn.supaUrl=""; conn.supaKey=""; saveConn(); session=null; supabase=null;
+  setDot("dotSupabase", false);
+  alert("Signed out of sync. Local progress on this device is untouched.");
+});
+
+wire("connectToggleBtn","click", ()=>{
+  const panel = document.getElementById("connectPanel");
+  panel.classList.toggle("open");
+  document.getElementById("cfgSupaUrl").value = conn.supaUrl || "";
+  document.getElementById("cfgSupaKey").value = conn.supaKey || "";
+  document.getElementById("cfgGhToken").value = conn.gh || "";
+  document.getElementById("cfgNetlifyToken").value = conn.netlify || "";
+  document.getElementById("cfgProxyUrl").value = conn.proxy || "";
+});
+wire("saveConnBtn","click", ()=>{
+  conn.gh = document.getElementById("cfgGhToken").value.trim();
+  conn.netlify = document.getElementById("cfgNetlifyToken").value.trim();
+  conn.proxy = document.getElementById("cfgProxyUrl").value.trim();
+  saveConn();
+  document.getElementById("connectPanel").classList.remove("open");
+});
+
+try{ boot(); }catch(e){ console.error("Tracker failed to start:", e); alert("Something broke on load — open this page's browser console (right click, Inspect, Console tab) and tell Claude what the red text says."); }
+</script>
+</body>
+</html>
