@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Mastery Jigsaw — ARC Advisory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EFEDE6;
+    --paper-raised:#F8F6F0;
+    --ink:#1B2A3D;
+    --ink-soft:#4C5A6B;
+    --blue:#2E5F8A;
+    --blue-dim:#DCE6EE;
+    --amber:#B8622A;
+    --amber-dim:#F1E1D3;
+    --green:#3F7A5C;
+    --green-dim:#DCEAE2;
+    --line:#CBC4B5;
+    --line-soft:#DEDACC;
+    --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size:28px 28px;
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    line-height:1.55;
+  }
+  h1,h2,h3,.display{font-family:'Fraunces',serif;}
+  .num{font-family:'IBM Plex Mono',monospace;}
+  a{color:var(--blue);}
+
+  /* ===== Shell layout ===== */
+  .shell{
+    display:grid;
+    grid-template-columns:260px 1fr;
+    max-width:1240px;
+    margin:0 auto;
+    min-height:100vh;
+  }
+  @media(max-width:880px){
+    .shell{grid-template-columns:1fr;}
+    .spine{position:static; order:2; border-right:none; border-top:1px solid var(--line);}
+  }
+
+  /* ===== Hero ===== */
+  .hero{
+    grid-column:1 / -1;
+    padding:56px 40px 40px;
+    border-bottom:1px solid var(--line);
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:40px;
+    align-items:end;
+  }
+  @media(max-width:880px){ .hero{grid-template-columns:1fr; padding:32px 20px;} }
+  .eyebrow-line{
+    display:flex; align-items:center; gap:10px;
+    color:var(--ink-soft); font-size:13px; margin-bottom:18px;
+  }
+  .eyebrow-line svg{width:16px;height:16px;flex-shrink:0;}
+  .hero h1{
+    font-size:44px; font-weight:600; letter-spacing:-0.01em;
+    margin:0 0 14px; line-height:1.06; max-width:11ch;
+  }
+  .hero p.sub{max-width:46ch; color:var(--ink-soft); font-size:15.5px; margin:0;}
+
+  .hero-stat{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    padding:22px 24px;
+  }
+  .hero-stat .big{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:52px; font-weight:600; color:var(--blue);
+    line-height:1;
+  }
+  .hero-stat .label{color:var(--ink-soft); font-size:13px; margin-top:6px;}
+  .mosaic{
+    display:grid;
+    grid-template-columns:repeat(13, 1fr);
+    gap:4px;
+    margin-top:18px;
+  }
+  .mosaic svg{width:100%; height:auto; display:block;}
+  .mosaic-piece-done{fill:var(--green); stroke:var(--green);}
+  .mosaic-piece-progress{fill:var(--amber-dim); stroke:var(--amber);}
+  .mosaic-piece-none{fill:transparent; stroke:var(--line);}
+
+  /* ===== Spine nav ===== */
+  .spine{
+    border-right:1px solid var(--line);
+    padding:28px 0;
+    position:sticky; top:0; align-self:start;
+    max-height:100vh; overflow-y:auto;
+  }
+  .spine-item{
+    display:block;
+    padding:11px 24px;
+    border-left:3px solid transparent;
+    cursor:pointer;
+    text-decoration:none;
+    color:var(--ink);
+  }
+  .spine-item:hover{background:var(--paper-raised);}
+  .spine-item.active{border-left-color:var(--blue); background:var(--paper-raised);}
+  .spine-item .lvl-name{font-weight:600; font-size:13.5px; display:block;}
+  .spine-item .lvl-meta{font-size:11.5px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+  .spine-bar{height:3px; background:var(--line-soft); margin-top:6px; overflow:hidden;}
+  .spine-bar-fill{height:100%; background:var(--green);}
+  .spine-controls{padding:18px 24px 0; border-top:1px solid var(--line); margin-top:10px;}
+  .toggle-row{display:flex; align-items:center; justify-content:space-between; font-size:13px; margin-bottom:10px;}
+  .switch{
+    width:34px; height:19px; border:1px solid var(--line); background:var(--paper-raised);
+    border-radius:20px; position:relative; cursor:pointer; flex-shrink:0;
+  }
+  .switch .knob{
+    width:13px; height:13px; background:var(--ink-soft); border-radius:50%;
+    position:absolute; top:2px; left:2px; transition:left .15s ease, background .15s ease;
+  }
+  .switch.on{background:var(--blue-dim); border-color:var(--blue);}
+  .switch.on .knob{left:17px; background:var(--blue);}
+  .reset-link{font-size:12px; color:var(--ink-soft); background:none; border:none; text-decoration:underline; cursor:pointer; padding:0; font-family:inherit;}
+
+  /* ===== Main content ===== */
+  main{padding:8px 40px 80px;}
+  @media(max-width:880px){main{padding:8px 20px 60px;}}
+
+  .level-block{padding-top:44px; scroll-margin-top:14px;}
+  .level-head{
+    display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;
+    border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:22px;
+  }
+  .level-head .lvl-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--blue);
+    border:1px solid var(--blue); padding:3px 8px;
+  }
+  .level-head h2{font-size:23px; font-weight:600; margin:0;}
+  .level-head .lvl-time{margin-left:auto; font-size:12.5px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+  .level-goal{color:var(--ink-soft); max-width:70ch; margin:0 0 6px; font-size:14.5px;}
+  .level-pass{
+    font-size:13px; color:var(--ink); background:var(--blue-dim);
+    padding:9px 13px; margin-bottom:22px; max-width:74ch;
+    border-left:2px solid var(--blue);
+  }
+  .level-pass b{font-weight:600;}
+
+  .pieces{display:grid; grid-template-columns:repeat(2, 1fr); gap:14px;}
+  @media(max-width:640px){.pieces{grid-template-columns:1fr;}}
+
+  .piece{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    padding:18px 18px 16px;
+    position:relative;
+    transition:border-color .15s ease;
+  }
+  .piece.done{border-color:var(--green);}
+  .piece.progress{border-color:var(--amber);}
+  .piece-tab{position:absolute; top:-1px; right:16px; width:22px; height:12px;}
+  .piece-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:8px;}
+  .piece-badges{display:flex; gap:6px; flex-wrap:wrap;}
+  .badge{
+    font-size:10.5px; font-family:'IBM Plex Mono',monospace; letter-spacing:.02em;
+    padding:2px 7px; border:1px solid var(--line); color:var(--ink-soft);
+  }
+  .badge.free{color:var(--green); border-color:var(--green);}
+  .badge.paid{color:var(--amber); border-color:var(--amber);}
+  .piece h3{font-size:16px; font-weight:600; margin:0 0 6px; line-height:1.3;}
+  .piece .why{font-size:13.5px; color:var(--ink-soft); margin:0 0 12px;}
+  .piece .why b{color:var(--ink); font-weight:600;}
+  .piece-foot{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px;}
+  .piece-link{font-size:12.5px; font-weight:600; text-decoration:none;}
+  .piece-link::after{content:" ↗";}
+  .status-btn{
+    font-size:12px; font-family:'IBM Plex Mono',monospace;
+    border:1px solid var(--line); background:var(--paper); color:var(--ink-soft);
+    padding:5px 10px; cursor:pointer;
+  }
+  .status-btn.progress{border-color:var(--amber); color:var(--amber); background:var(--amber-dim);}
+  .status-btn.done{border-color:var(--green); color:var(--green); background:var(--green-dim);}
+
+  footer{
+    grid-column:1/-1; border-top:1px solid var(--line);
+    padding:26px 40px; font-size:12.5px; color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="piece-shape" viewBox="0 0 100 100">
+    <path d="M20,20 C20,20 20,9 31,9 C42,9 42,20 42,20 L60,20 L60,38 C60,38 71,38 71,50 C71,62 60,62 60,62 L60,80 L42,80 C42,80 42,91 31,91 C20,91 20,80 20,80 L20,62 C20,62 9,62 9,50 C9,38 20,38 20,38 Z" stroke-width="4"/>
+  </symbol>
+</svg>
+
+<div class="shell">
+
+  <div class="hero">
+    <div>
+      <div class="eyebrow-line">
+        <svg viewBox="0 0 100 100"><use href="#piece-shape" fill="none" stroke="currentColor"/></svg>
+        ARC Advisory · AI Mastery Jigsaw
+      </div>
+      <h1>Claude power user to agentic AI thought leader.</h1>
+      <p class="sub">Twenty-six pieces, seven levels, one picture: a commercial operator who can build agents and prove it. Free routes come first in every level — you only pay for the exam that certifies what you've already learned.</p>
+    </div>
+    <div class="hero-stat">
+      <div class="big"><span id="pctDone">0</span>%</div>
+      <div class="label">of the jigsaw complete — <span id="hoursLeft">0</span> hrs logged of <span id="hoursTotal">0</span> est.</div>
+      <div class="mosaic" id="mosaic"></div>
+    </div>
+  </div>
+
+  <nav class="spine" id="spine"></nav>
+
+  <main id="main"></main>
+
+  <footer>
+    Built for Nick Riggott, ARC Advisory. Progress saves to this browser only — host on GitHub Pages and it travels with you.
+    Course names, prices and links change; recheck the provider page before paying for an exam.
+  </footer>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+const LEVELS = [
+  {
+    id:0, name:"Baseline", time:"Week 1 · ~15 hrs",
+    goal:"Confirm the starting line and get every tool live before content starts.",
+    pass:"Accounts are live, a one-page self-assessment is written, and this tracker is your single source of truth."
+  },
+  {
+    id:1, name:"Foundations & AI Fluency", time:"Weeks 1–3 · ~50 hrs",
+    goal:"Build a correct mental model of what these models can and can't do, across both major labs, before touching agents.",
+    pass:"<b>Claude Certified Associate – Foundations</b> passed. First LinkedIn explainer published."
+  },
+  {
+    id:2, name:"Context Engineering & Prompt Systems", time:"Weeks 3–6 · ~60 hrs",
+    goal:"Move past clever prompts into managing the whole context window, and ship your first reusable Claude Skill.",
+    pass:"One ARC workflow (e.g. discovery-call synthesis) automated as a working Claude Skill, documented publicly."
+  },
+  {
+    id:3, name:"RAG & Tool Use", time:"Weeks 6–11 · ~90 hrs",
+    goal:"Ground a model in ARC's own material and give it callable tools instead of just conversation.",
+    pass:"A working RAG assistant answers client-style questions from ARC's methodology docs, with citations. Case study #1 written."
+  },
+  {
+    id:4, name:"MCP, Agents & Orchestration", time:"Weeks 11–18 · ~130 hrs",
+    goal:"The core build phase — connect agents to real systems and coordinate multi-step work.",
+    pass:"<b>Claude Certified Developer – Foundations</b> passed. Two agents shipped: one no-code GTM agent, one MCP/Agent-SDK agent touching a live system. Case studies #2 and #3."
+  },
+  {
+    id:5, name:"Evaluation, Deployment & Governance", time:"Weeks 18–24 · ~110 hrs",
+    goal:"Learn to prove an agent works, and to talk credibly about governance with risk-aware buyers.",
+    pass:"<b>Google Cloud Generative AI Leader</b> passed. One shipped agent gets a documented evaluation harness and guardrails."
+  },
+  {
+    id:6, name:"Capstone — Thought Leader", time:"Weeks 24–36 · ~150 hrs", capstone:true,
+    goal:"Convert the build work into visible, named authority in the sales and GTM consulting market.",
+    pass:"A flagship agent with a client-grade metric, a named ARC framework, 12+ weeks of consistent LinkedIn output, and a 4–5 case study portfolio page."
+  }
+];
+
+const PIECES = [
+  // Level 0
+  {id:"l0-diag", level:0, kind:"Build", cost:"Free", hours:5, title:"Baseline self-assessment", why:"Forces an honest starting point, so every later level is measured against <b>your</b> real gaps, not a generic curriculum.", link:"#"},
+  {id:"l0-setup", level:0, kind:"Build", cost:"Free", hours:10, title:"Environment setup — Claude, GitHub, n8n/Relevance AI", why:"Every later module assumes these accounts exist. One session, done properly, removes friction for six months.", link:"https://claude.ai"},
+
+  // Level 1
+  {id:"l1-claude101", level:1, kind:"Course", cost:"Free", hours:2, title:"Claude 101 (Anthropic Academy)", why:"The fastest correct grounding in how Claude actually works, from the people who built it.", link:"https://anthropic.skilljar.com/"},
+  {id:"l1-fluency", level:1, kind:"Course", cost:"Free", hours:3, title:"AI Fluency: Framework & Foundations", why:"Gives you the vocabulary to talk about AI capability with clients precisely, not vaguely.", link:"https://anthropic.skilljar.com/"},
+  {id:"l1-limits", level:1, kind:"Course", cost:"Free", hours:2, title:"AI Capabilities and Limitations", why:"Knowing exactly where these models fail is what stops you overselling a client into a bad outcome.", link:"https://anthropic.skilljar.com/"},
+  {id:"l1-oa-found", level:1, kind:"Course", cost:"Free", hours:1.5, title:"OpenAI Academy: AI Foundations", why:"A second lab's framing, so your advice isn't Claude-only when a client is on ChatGPT.", link:"https://academy.openai.com/public/courses/ai-foundations-juzjs"},
+  {id:"l1-oa-applied", level:1, kind:"Course", cost:"Free", hours:1.5, title:"OpenAI Academy: Applied AI Foundations", why:"Bridges theory into applied use cases you can reference directly in client conversations.", link:"https://academy.openai.com/public/courses/applied-ai-foundations-hgk7r"},
+  {id:"l1-exam", level:1, kind:"Exam", cost:"$99", hours:2, title:"Claude Certified Associate – Foundations", why:"The one credential built specifically for consultants and sellers, not engineers. This is your Level 1 pass mark.", link:"https://anthropic-partners.skilljar.com/claude-certified-associate-foundations-certification"},
+
+  // Level 2
+  {id:"l2-context", level:2, kind:"Content", cost:"Free", hours:3, title:"Anthropic: 'Effective context engineering for AI agents'", why:"The primary source on the discipline that replaced prompt engineering. Read it twice.", link:"https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"},
+  {id:"l2-skills", level:2, kind:"Course", cost:"Free", hours:3, title:"Introduction to Agent Skills (Anthropic Academy)", why:"Skills are the smallest unit of reusable automation — the building block every later agent depends on.", link:"https://anthropic.skilljar.com/"},
+  {id:"l2-cowork", level:2, kind:"Course", cost:"Free", hours:4, title:"Introduction to Claude Cowork", why:"Cowork is where a non-developer builds real multi-step automation without writing code first.", link:"https://anthropic.skilljar.com/"},
+  {id:"l2-build", level:2, kind:"Build", cost:"Free", hours:16, title:"Ship your first ARC Skill", why:"Automate one real ARC workflow end to end. This becomes your first public build-log post.", link:"#"},
+
+  // Level 3
+  {id:"l3-api", level:3, kind:"Course", cost:"Free", hours:6, title:"Building with the Claude API (tool use, RAG)", why:"The mechanics behind every agent you'll build from here — retrieval, grounding, and calling tools.", link:"https://anthropic.skilljar.com/"},
+  {id:"l3-nvidia-genai", level:3, kind:"Course", cost:"Free", hours:2, title:"NVIDIA: Generative AI Explained", why:"A no-code primer from the hardware layer up — useful when a client's IT team asks 'what's actually running this'.", link:"https://resources.nvidia.com/en-us-generative-ai-nurture-courses/dli"},
+  {id:"l3-nvidia-rag", level:3, kind:"Course", cost:"Free", hours:8, title:"NVIDIA: Agentic RAG project path", why:"A guided, free project that shows retrieval and agents working together, not just in theory.", link:"https://developer.nvidia.com/topics/ai/how-to-build-agentic-ai-rag"},
+  {id:"l3-build", level:3, kind:"Build", cost:"Free", hours:20, title:"Deploy a RAG assistant on ARC's own methodology", why:"Ground an assistant in ARC's frameworks so it answers client-style questions with citations. This is Case Study #1.", link:"#"},
+
+  // Level 4
+  {id:"l4-mcp-intro", level:4, kind:"Course", cost:"Free", hours:4, title:"Introduction to Model Context Protocol", why:"MCP is how an agent reaches real systems — CRM, calendar, docs — instead of staying stuck in chat.", link:"https://anthropic.skilljar.com/"},
+  {id:"l4-mcp-adv", level:4, kind:"Course", cost:"Free", hours:4, title:"Model Context Protocol: Advanced Topics", why:"Covers tool explosion and coordination patterns — the two things that break agents at scale.", link:"https://anthropic.skilljar.com/"},
+  {id:"l4-subagents", level:4, kind:"Course", cost:"Free", hours:3, title:"Introduction to Subagents", why:"How to delegate parts of a task to isolated agents, the pattern behind every serious multi-step system.", link:"https://anthropic.skilljar.com/"},
+  {id:"l4-dl-mcp", level:4, kind:"Course", cost:"Free", hours:2, title:"DeepLearning.AI: MCP — Build Rich-Context AI Apps", why:"Short, hands-on, and taught with Anthropic — the fastest route from theory to a working MCP server.", link:"https://learn.deeplearning.ai/courses/mcp-build-rich-context-ai-apps-with-anthropic/information"},
+  {id:"l4-dl-agentsdk", level:4, kind:"Course", cost:"Free", hours:3, title:"DeepLearning.AI: Agent Skills with Anthropic (Agent SDK)", why:"Your ceiling as a non-developer: enough of the Agent SDK to say 'I build agents', credibly.", link:"https://www.deeplearning.ai/courses/agent-skills-with-anthropic"},
+  {id:"l4-relevance", level:4, kind:"Build", cost:"Free tier", hours:20, title:"Build a GTM agent in Relevance AI", why:"No-code, sales-native, and used in production by real GTM teams — the fastest path to a working sales agent.", link:"https://relevanceai.com"},
+  {id:"l4-n8n", level:4, kind:"Build", cost:"Free (self-host)", hours:24, title:"Build an orchestration agent in n8n", why:"Deeper control than any no-code tool — useful the day a client needs self-hosted, data-sovereign workflows.", link:"https://n8n.io"},
+  {id:"l4-exam", level:4, kind:"Exam", cost:"$125", hours:3, title:"Claude Certified Developer – Foundations", why:"Validates the API, Claude Code and MCP skills you've just built with. Your Level 4 pass mark.", link:"https://anthropic-partners.skilljar.com/claude-certified-developer-foundations-certification"},
+
+  // Level 5
+  {id:"l5-eval", level:5, kind:"Course", cost:"Free", hours:6, title:"NVIDIA: How to Evaluate AI Agents", why:"Being able to prove an agent works, with numbers, is what separates a demo from a deliverable.", link:"https://developer.nvidia.com/topics/ai/how-to-evaluate-ai-agents"},
+  {id:"l5-gcloud", level:5, kind:"Course", cost:"Free", hours:14, title:"Google Cloud: Generative AI Leader learning path", why:"Strategy and governance framing — the language risk-aware, technical buyers actually use.", link:"https://www.skills.google/paths/1951"},
+  {id:"l5-guardrails", level:5, kind:"Build", cost:"Free", hours:14, title:"Add an evaluation harness and guardrails to a shipped agent", why:"Turns one existing agent into a defensible, documented system rather than a one-off demo.", link:"#"},
+  {id:"l5-exam", level:5, kind:"Exam", cost:"Paid, check current fee", hours:2, title:"Google Cloud Generative AI Leader exam", why:"A recognised, non-coding governance credential that reassures buyers with an IT or security lens.", link:"https://www.skills.google/paths/1951"},
+
+  // Level 6
+  {id:"l6-flagship", level:6, kind:"Build", cost:"Free–low cost", hours:60, title:"Ship a flagship agent with a client-grade metric", why:"One agent, one client-real number (hours saved, cycle time, pipeline velocity). This is the case study that sells ARC.", link:"#"},
+  {id:"l6-framework", level:6, kind:"Content", cost:"Free", hours:20, title:"Publish a named ARC AI framework", why:"Original methodology is what actually earns 'thought leader' status — not the badges behind it.", link:"#"},
+  {id:"l6-linkedin", level:6, kind:"Content", cost:"Free", hours:40, title:"12 weeks of consistent, specific LinkedIn output", why:"53% of B2B buyers rate thought leadership above brand recognition when shortlisting vendors. This is where that gets built.", link:"#"},
+  {id:"l6-portfolio", level:6, kind:"Build", cost:"Free", hours:14, title:"Publish a 4–5 case study portfolio page", why:"The single asset a technical buyer checks before a first call. Make it count.", link:"#"},
+  {id:"l6-architect", level:6, kind:"Exam", cost:"$125", hours:3, title:"Optional: Claude Certified Architect – Foundations", why:"Only pursue this if a client base is asking for deep architectural credibility beyond the Developer cert.", link:"https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification"},
+];
+
+/* ===================== STATE ===================== */
+const STORAGE_KEY = "arc-ai-jigsaw-progress-v1";
+let state = {};
+try{ state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ state = {}; }
+let freeOnly = false;
+
+function saveState(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+function statusOf(id){ return state[id] || "none"; }
+function cycleStatus(id){
+  const cur = statusOf(id);
+  const next = cur === "none" ? "progress" : cur === "progress" ? "done" : "none";
+  state[id] = next;
+  saveState();
+  renderAll();
+}
+
+/* ===================== RENDER ===================== */
+function isFree(cost){ return /free/i.test(cost); }
+
+function statusLabel(s){
+  return s === "done" ? "Done" : s === "progress" ? "In progress" : "Not started";
+}
+
+function renderMosaic(){
+  const mosaic = document.getElementById("mosaic");
+  mosaic.innerHTML = "";
+  PIECES.forEach(p=>{
+    const s = statusOf(p.id);
+    const cls = s === "done" ? "mosaic-piece-done" : s === "progress" ? "mosaic-piece-progress" : "mosaic-piece-none";
+    const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+    svg.setAttribute("viewBox","0 0 100 100");
+    svg.setAttribute("title", p.title);
+    const use = document.createElementNS("http://www.w3.org/2000/svg","use");
+    use.setAttribute("href","#piece-shape");
+    use.setAttribute("class", cls);
+    svg.appendChild(use);
+    mosaic.appendChild(svg);
+  });
+}
+
+function renderStats(){
+  const done = PIECES.filter(p=>statusOf(p.id)==="done");
+  const pct = Math.round((done.length / PIECES.length) * 100);
+  document.getElementById("pctDone").textContent = pct;
+  const hoursDone = done.reduce((a,p)=>a+p.hours,0);
+  const hoursTotal = PIECES.reduce((a,p)=>a+p.hours,0);
+  document.getElementById("hoursLeft").textContent = hoursDone;
+  document.getElementById("hoursTotal").textContent = hoursTotal;
+}
+
+function renderSpine(){
+  const spine = document.getElementById("spine");
+  spine.innerHTML = "";
+  LEVELS.forEach(lvl=>{
+    const pieces = PIECES.filter(p=>p.level===lvl.id);
+    const done = pieces.filter(p=>statusOf(p.id)==="done").length;
+    const pct = pieces.length ? Math.round((done/pieces.length)*100) : 0;
+    const a = document.createElement("a");
+    a.href = "#level-"+lvl.id;
+    a.className = "spine-item";
+    a.innerHTML = `
+      <span class="lvl-name">${lvl.id} · ${lvl.name}</span>
+      <span class="lvl-meta">${done}/${pieces.length} pieces</span>
+      <div class="spine-bar"><div class="spine-bar-fill" style="width:${pct}%"></div></div>
+    `;
+    spine.appendChild(a);
+  });
+
+  const controls = document.createElement("div");
+  controls.className = "spine-controls";
+  controls.innerHTML = `
+    <div class="toggle-row">
+      <span>Free-only view</span>
+      <div class="switch ${freeOnly?'on':''}" id="freeSwitch"><div class="knob"></div></div>
+    </div>
+    <button class="reset-link" id="resetBtn">Reset all progress</button>
+  `;
+  spine.appendChild(controls);
+
+  document.getElementById("freeSwitch").addEventListener("click", ()=>{
+    freeOnly = !freeOnly;
+    renderAll();
+  });
+  document.getElementById("resetBtn").addEventListener("click", ()=>{
+    if(confirm("Clear all saved progress on this device?")){
+      state = {};
+      saveState();
+      renderAll();
+    }
+  });
+}
+
+function renderMain(){
+  const main = document.getElementById("main");
+  main.innerHTML = "";
+  LEVELS.forEach(lvl=>{
+    let pieces = PIECES.filter(p=>p.level===lvl.id);
+    if(freeOnly) pieces = pieces.filter(p=>isFree(p.cost));
+    // free-first ordering, exam/build content stays after free courses within a level
+    pieces = pieces.slice().sort((a,b)=> (isFree(a.cost)===isFree(b.cost)) ? 0 : (isFree(a.cost) ? -1 : 1));
+
+    const section = document.createElement("section");
+    section.className = "level-block";
+    section.id = "level-"+lvl.id;
+
+    const totalHours = PIECES.filter(p=>p.level===lvl.id).reduce((a,p)=>a+p.hours,0);
+
+    section.innerHTML = `
+      <div class="level-head">
+        <span class="lvl-tag">LEVEL ${lvl.id}${lvl.capstone?' · CAPSTONE':''}</span>
+        <h2>${lvl.name}</h2>
+        <span class="lvl-time">${lvl.time}</span>
+      </div>
+      <p class="level-goal">${lvl.goal}</p>
+      <p class="level-pass">Pass criteria: ${lvl.pass}</p>
+      <div class="pieces">
+        ${pieces.map(p=>{
+          const s = statusOf(p.id);
+          return `
+          <div class="piece ${s==='done'?'done':s==='progress'?'progress':''}">
+            <div class="piece-top">
+              <div class="piece-badges">
+                <span class="badge">${p.kind}</span>
+                <span class="badge ${isFree(p.cost)?'free':'paid'}">${p.cost}</span>
+                <span class="badge">${p.hours}h</span>
+              </div>
+            </div>
+            <h3>${p.title}</h3>
+            <p class="why">${p.why}</p>
+            <div class="piece-foot">
+              <a class="piece-link" href="${p.link}" target="_blank" rel="noopener">Open resource</a>
+              <button class="status-btn ${s==='done'?'done':s==='progress'?'progress':''}" data-id="${p.id}">${statusLabel(s)}</button>
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+    `;
+    main.appendChild(section);
+  });
+
+  main.querySelectorAll(".status-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=> cycleStatus(btn.dataset.id));
+  });
+}
+
+function renderAll(){
+  renderStats();
+  renderMosaic();
+  renderSpine();
+  renderMain();
+}
+
+renderAll();
+</script>
+</body>
+</html>
